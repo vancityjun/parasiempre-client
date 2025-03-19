@@ -1,0 +1,11 @@
+button {
+  background-color: #bfefff;
+  :disabled {
+    background-color: #def4ff;
+  }
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  border: none;
+}

@@ -1,0 +1,24 @@
+@use "../../../shared/variables.scss" as v;
+
+.input-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 50px;
+  label {
+    font-size: 14px;
+  }
+  input {
+    border: none;
+    outline: none;
+    border-bottom: 1px v.$font-color solid;
+    height: 26px;
+    width: 100%;
+    &:focus {
+      border-bottom: 1px v.$font-color solid;
+    }
+  }
+  .required-field {
+    color: v.$alert-color;
+  }
+}

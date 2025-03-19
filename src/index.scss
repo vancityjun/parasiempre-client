@@ -1,0 +1,29 @@
+@use "./shared/variables.scss" as v;
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+p,
+span,
+a,
+input,
+label {
+  font-family: v.$primary-font;
+  font-weight: 400;
+  color: v.$font-color;
+  text-decoration: inherit;
+  font-size: 16px;
+  &.bold {
+    font-weight: bold;
+  }
+}
+
+h1 {
+  font-family: v.$title-font;
+  font-size: 2.3rem;
+  margin-bottom: 3.5rem;
+}
