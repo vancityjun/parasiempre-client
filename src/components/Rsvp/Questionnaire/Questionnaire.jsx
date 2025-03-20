@@ -1,9 +1,9 @@
 import { useState } from "react";
 import Question from "./Question";
 import InputField from "../InputField";
-import './Questionnaire.scss'
+import "./Questionnaire.scss";
 
-export const Questionnaire = ({ submitEnabled, setSubmitEnabled }) => {
+export const Questionnaire = ({ setSubmitEnabled, setAnswers }) => {
   const questionnaireFlow = {
     "not-from-state": {
       name: "not-from-state",
@@ -51,13 +51,11 @@ export const Questionnaire = ({ submitEnabled, setSubmitEnabled }) => {
   const [questions, setQuestions] = useState(questionnaireFlow);
 
   const removeRelatedQuestions = (currentQuestionName) => {
-    if (currentQuestionName === "done") {
-      setSubmitEnabled(false);
-    } else if (currentQuestionName) {
-      if (submitEnabled) setSubmitEnabled(true);
+    if (currentQuestionName && currentQuestionName !== "done") {
       const nextQuestionName = questions[currentQuestionName].next;
+      questions[currentQuestionName].next = null;
       removeRelatedQuestions(nextQuestionName);
-      // what if I just disable the question?
+
       setQuestions((state) => ({
         ...state,
         [currentQuestionName]: {
@@ -71,44 +69,48 @@ export const Questionnaire = ({ submitEnabled, setSubmitEnabled }) => {
   const onSelectHandler = (next, val, currentName) => {
     const { next: nextQuestionName } = questions[currentName];
     if (nextQuestionName) {
+      setSubmitEnabled(false);
       removeRelatedQuestions(nextQuestionName);
     }
-    questions[currentName].next = next;
-
-    // store the data: {question: val}
+    setAnswers((state) => ({ ...state, currentName: val }));
     if (next === "done") {
       setSubmitEnabled(true);
       return;
     }
+    questions[currentName].next = next;
     setQuestions((state) => ({
       ...state,
       [next]: { ...questions[next], disabled: false },
     }));
   };
 
-  return <div className="questionnaire">{Object.values(questions).map((questionnaire) => {
-    const { name, disabled, question } = questionnaire || {};
-    if (disabled || !name) {
-      return;
-    }
-    switch (name) {
-      case "done":
-        break;
-      case "leave-contact":
-        return (
-          <div key={name}>
-            <p>{question}</p>
-            <InputField key={name} title="phone number" isRequired />
-          </div>
-        );
-      default:
-        return (
-          <Question
-            currentQuestion={questionnaire}
-            onSelectHandler={onSelectHandler}
-            key={name}
-          />
-        );
-    }
-  })}</div>;
+  return (
+    <div className="questionnaire">
+      {Object.values(questions).map((questionnaire) => {
+        const { name, disabled, question } = questionnaire || {};
+        if (disabled || !name) {
+          return;
+        }
+        switch (name) {
+          case "done":
+            break;
+          case "leave-contact":
+            return (
+              <div key={name}>
+                <p>{question}</p>
+                <InputField key={name} title="phone number" isRequired />
+              </div>
+            );
+          default:
+            return (
+              <Question
+                currentQuestion={questionnaire}
+                onSelectHandler={onSelectHandler}
+                key={name}
+              />
+            );
+        }
+      })}
+    </div>
+  );
 };

@@ -1,9 +1,9 @@
 import "./button.scss";
 
-const Button = (disabled) => {
+const Button = ({ disabled, onClick, title }) => {
   return (
-    <button disabled={disabled} className="submit-button">
-      Submit
+    <button disabled={disabled} className="submit-button" onClick={onClick}>
+      {title}
     </button>
   );
 };

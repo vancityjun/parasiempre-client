@@ -1,10 +1,10 @@
 import "./select.scss";
 
-const Select = ({ children, values }) => {
+const Select = ({ children, values, onChange }) => {
   return (
     <div className="select-field">
-      <label htmlFor="">{children}</label>
-      <select name="">
+      <label>{children}</label>
+      <select onChange={onChange}>
         {values.map((value, index) => (
           <option
             key={index}
