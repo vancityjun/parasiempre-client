@@ -23,7 +23,7 @@ const Rsvp = () => {
     isRequired: true,
   });
   const [guestCount, setGuestCount] = useState(0);
-  const [submitState, setSubmitState] = useState("");
+  const [submitState, setSubmitState] = useState(submitStatus.none);
   const [submissionError, setSubmissionError] = useState(null);
 
   const [answers, setAnswers] = useState({});
