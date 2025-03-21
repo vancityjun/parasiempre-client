@@ -58,6 +58,7 @@ const Rsvp = () => {
         if (recordId) { 
           const docRef = doc(db, "rsvps", recordId);
           await updateDoc(docRef, dataToSend);
+          return;
         }
         const querySnapshot = await getDocs(
           query(

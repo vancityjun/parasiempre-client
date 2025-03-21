@@ -70,7 +70,7 @@ export const Questionnaire = ({ setSubmitEnabled, setAnswers, answers }) => {
     <div className="questionnaire">
       {Object.values(questions).map((questionnaire) => {
         const { name, disabled, question } = questionnaire || {};
-        if (disabled || !name) {
+        if ((disabled || !name) && !answers[name]) {
           return;
         }
         switch (name) {

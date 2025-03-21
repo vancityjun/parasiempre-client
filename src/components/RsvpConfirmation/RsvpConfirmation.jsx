@@ -3,8 +3,13 @@ import questionnaireFlow from "../Rsvp/Questionnaire/questionnaireFlow.json";
 import "./RsvpConfirmation.scss"
 import Button from "../rsvp/Button";
 
-const RsvpConfirmation = ({ email, firstName, lastName, answers, changeAnswer }) => {
-  console.log(answers)
+const RsvpConfirmation = ({
+  email,
+  firstName,
+  lastName,
+  answers,
+  changeAnswer,
+}) => {
   return (
     <>
       <p className="title">
@@ -22,7 +27,7 @@ const RsvpConfirmation = ({ email, firstName, lastName, answers, changeAnswer })
           </p>
         ))}
       </div>
-      {/* <Button title='change my answer' onClick={changeAnswer} /> */}
+      <Button title="change my answer" onClick={changeAnswer} />
     </>
   );
 };
