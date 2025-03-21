@@ -2,57 +2,23 @@ import { useState } from "react";
 import Question from "./Question";
 import InputField from "../InputField";
 import "./Questionnaire.scss";
+import questionnaireFlow from "./questionnaireFlow.json";
 
-export const Questionnaire = ({ setSubmitEnabled, setAnswers }) => {
-  const questionnaireFlow = {
-    "not-from-state": {
-      name: "not-from-state",
-      question: "Are you coming from outside of US?",
-      // yes: 'is-canadian',
-      yes: "driving",
-      no: "done",
-      next: null,
-      disabled: false,
-    },
-    // "is-canadian": {
-    //   name: "is-canadian",
-    //   question: "are you a Canadian Citizen and have a valid passport?",
-    //   yes: "driving",
-    //   no: "visa-info",
-    //   next: null
-    // },
-    // "visa-info": {
-    //   next: "driving"
-    // },
-    driving: {
-      name: "driving",
-      question: "are you driving? (from Canada)",
-      yes: "done",
-      no: "need-ride",
-      next: null,
-      disabled: true,
-    },
-    "need-ride": {
-      name: "need-ride",
-      question: "need a ride arrangement?",
-      yes: "leave-contact",
-      no: "done",
-      next: null,
-      disabled: true,
-    },
-    "leave-contact": {
-      name: "leave-contact",
-      question: "leave a phone number we will contact you",
-      next: "done",
-      disabled: true,
-    },
-    done: null,
-  };
+export const Questionnaire = ({ setSubmitEnabled, setAnswers, answers }) => {
   const [questions, setQuestions] = useState(questionnaireFlow);
+
+  const deleteAnswer = (name) => {
+    setAnswers((prevState) => {
+      const newState = { ...prevState };
+      delete newState[name];
+      return newState;
+    });
+  };
 
   const removeRelatedQuestions = (currentQuestionName) => {
     if (currentQuestionName && currentQuestionName !== "done") {
       const nextQuestionName = questions[currentQuestionName].next;
+      deleteAnswer(currentQuestionName);
       questions[currentQuestionName].next = null;
       removeRelatedQuestions(nextQuestionName);
 
@@ -72,7 +38,7 @@ export const Questionnaire = ({ setSubmitEnabled, setAnswers }) => {
       setSubmitEnabled(false);
       removeRelatedQuestions(nextQuestionName);
     }
-    setAnswers((state) => ({ ...state, currentName: val }));
+    setAnswers((state) => ({ ...state, [currentName]: val }));
     if (next === "done") {
       setSubmitEnabled(true);
       return;
@@ -82,6 +48,22 @@ export const Questionnaire = ({ setSubmitEnabled, setAnswers }) => {
       ...state,
       [next]: { ...questions[next], disabled: false },
     }));
+  };
+
+  const validatePhoneNumber = (phoneNumber) => {
+    // Remove all non-digit characters
+    const cleaned = phoneNumber.replace(/\D/g, "");
+    return (
+      cleaned.length === 10 ||
+      (cleaned.length === 11 && cleaned.startsWith("1"))
+    );
+  };
+
+  const handlePhoneNumber = (val, currentName) => {
+    if (validatePhoneNumber(val)) {
+      setAnswers((state) => ({ ...state, [currentName]: val }));
+      setSubmitEnabled(true);
+    }
   };
 
   return (
@@ -98,7 +80,12 @@ export const Questionnaire = ({ setSubmitEnabled, setAnswers }) => {
             return (
               <div key={name}>
                 <p>{question}</p>
-                <InputField key={name} title="phone number" isRequired />
+                <InputField
+                  key={name}
+                  title="phone number"
+                  isRequired
+                  setVal={(val) => handlePhoneNumber(val, name)}
+                />
               </div>
             );
           default:
@@ -107,6 +94,7 @@ export const Questionnaire = ({ setSubmitEnabled, setAnswers }) => {
                 currentQuestion={questionnaire}
                 onSelectHandler={onSelectHandler}
                 key={name}
+                val={answers[name]}
               />
             );
         }

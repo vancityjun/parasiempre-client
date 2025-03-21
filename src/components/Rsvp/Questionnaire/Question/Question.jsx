@@ -3,6 +3,7 @@ import SelectionButton from "../SlectionButton";
 const Question = ({
   currentQuestion: { question, name, yes, no },
   onSelectHandler,
+  val,
 }) => {
   return (
     <div>
@@ -12,6 +13,7 @@ const Question = ({
           title="Yes"
           name={name}
           onSelect={() => onSelectHandler(yes, "yes", name)}
+          checked={val === "yes"}
         />
       )}
       {no && (
@@ -19,6 +21,7 @@ const Question = ({
           title="No"
           name={name}
           onSelect={() => onSelectHandler(no, "no", name)}
+          checked={val === "no"}
         />
       )}
     </div>

@@ -3,9 +3,11 @@ import InputField from "./InputField";
 import Select from "./Select";
 import Questionnaire from "./Questionnaire";
 import Button from "./Button";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useMemo } from "react";
+import "./Rsvp.scss";
+import RsvpConfirmation from "../RsvpConfirmation";
 
 const submitStatus = {
   none: "none",
@@ -17,24 +19,17 @@ const Rsvp = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [submitEnabled, setSubmitEnabled] = useState(false);
-  const [emailInput, setEmailInput] = useState({
-    val: "",
-    isValid: true,
-    isRequired: true,
-  });
+  const [email, setEmail] = useState("");
   const [guestCount, setGuestCount] = useState(0);
   const [submitState, setSubmitState] = useState(submitStatus.none);
   const [submissionError, setSubmissionError] = useState(null);
+  const [recordId, setRecordId] = useState('')
 
   const [answers, setAnswers] = useState({});
 
   const validateEmail = () => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return !emailInput.isRequired || emailRegex.test(emailInput.val);
-  };
-
-  const setEmailInputVal = (val) => {
-    setEmailInput((state) => ({ ...state, val }));
+    return emailRegex.test(email);
   };
 
   const handleGuestCountChange = (event) => {
@@ -54,32 +49,36 @@ const Rsvp = () => {
       const dataToSend = {
         firstName,
         lastName,
-        email: emailInput.val,
+        email,
         guestCount,
         questionnaireAnswers: answers,
         timestamp: new Date(),
       };
       try {
-        const querySnapshot = await getDocs(query(
-          collection(db, "rsvps"),
-          where("email", "==", dataToSend.email),
-        ));
+        if (recordId) { 
+          const docRef = doc(db, "rsvps", recordId);
+          await updateDoc(docRef, dataToSend);
+        }
+        const querySnapshot = await getDocs(
+          query(
+            collection(db, "rsvps"),
+            where("email", "==", dataToSend.email),
+          ),
+        );
         if (!querySnapshot.empty) {
-          throw new Error("Email already exists");
+          setSubmissionError("Email already exists");
+          setSubmitState(submitStatus.none);
+          return;
         }
         const docRef = await addDoc(collection(db, "rsvps"), dataToSend);
-        console.log("Document written with ID: ", docRef.id);
-        alert("Thank you for your RSVP!");
+        setRecordId(docRef.id)
+        setSubmitState(submitStatus.done);
       } catch (error) {
         console.error("Error adding document: ", error);
-        setSubmissionError("Failed to submit RSVP. Please try again.");
-      } finally {
-        // setFirstName("");
-        // setLastName("");
-        // setEmailInput({ val: "", isValid: false, isRequired: true });
-        // setAnswers({});
-        // setGuestCount(0);
-        setSubmitState(submitStatus.done);
+        setSubmissionError(
+          `Failed to submit RSVP Please check your connection and try again.`,
+        );
+        setSubmitState(submitStatus.none);
       }
     }
   };
@@ -88,6 +87,18 @@ const Rsvp = () => {
     () => submitState === submitStatus.submitting,
     [submitState],
   );
+
+  if (submitState === submitStatus.done) {
+    return (
+      <RsvpConfirmation
+        email={email}
+        firstName={firstName}
+        lastName={lastName}
+        answers={answers}
+        changeAnswer={() => setSubmitState(submitStatus.none)}
+      />
+    );
+  }
 
   return (
     <div>
@@ -106,17 +117,7 @@ const Rsvp = () => {
         val={lastName}
         setVal={setLastName}
       />
-      <InputField
-        type="email"
-        title={"Email"}
-        isRequired={emailInput.isRequired}
-        setVal={setEmailInputVal}
-      />
-      <p>
-        By providing your email, you consent to receive wedding-related
-        information and reminders from us. We will not send anything unrelated
-        to the wedding.
-      </p>
+      <InputField type="email" title={"Email"} isRequired setVal={setEmail} val={email} />
       <Select
         values={Array.from({ length: 10 }, (_, i) => i)}
         onChange={handleGuestCountChange}
@@ -127,6 +128,7 @@ const Rsvp = () => {
       <Questionnaire
         setSubmitEnabled={setSubmitEnabled}
         setAnswers={setAnswers}
+        answers={answers}
       />
       {submissionError && <p className="error">{submissionError}</p>}
       <Button

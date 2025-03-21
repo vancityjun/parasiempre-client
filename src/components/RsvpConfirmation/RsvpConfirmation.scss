@@ -1,0 +1,6 @@
+@use "../../shared/variables.scss" as v;
+
+.title {
+  font-family: v.$primary-font;
+  font-size: 21px;
+}
