@@ -1,6 +1,5 @@
-import { useEffect } from "react";
-import questionnaireFlow from "../Rsvp/Questionnaire/questionnaireFlow.json";
-import "./RsvpConfirmation.scss"
+import questionnaireFlow from "../Rsvp/questionnaireFlow.json";
+import "./RsvpConfirmation.scss";
 import Button from "../Rsvp/Button";
 
 const RsvpConfirmation = ({
@@ -13,7 +12,7 @@ const RsvpConfirmation = ({
   return (
     <>
       <p className="title">
-        Thank you for RRSP! we&apos;ll send you a confirmation email to {email}
+        Thank you for RSVP! we&apos;ll send you a confirmation email to {email}
       </p>
       <div>
         <p>First name: {firstName}</p>

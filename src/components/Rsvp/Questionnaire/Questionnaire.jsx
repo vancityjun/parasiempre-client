@@ -1,11 +1,14 @@
-import { useState } from "react";
 import Question from "./Question";
 import InputField from "../InputField";
 import "./Questionnaire.scss";
-import questionnaireFlow from "./questionnaireFlow.json";
 
-export const Questionnaire = ({ setSubmitEnabled, setAnswers, answers }) => {
-  const [questions, setQuestions] = useState(questionnaireFlow);
+export const Questionnaire = ({
+  setSubmitEnabled,
+  setAnswers,
+  answers,
+  questionState,
+}) => {
+  const [questions, setQuestions] = questionState;
 
   const deleteAnswer = (name) => {
     setAnswers((prevState) => {
@@ -70,21 +73,23 @@ export const Questionnaire = ({ setSubmitEnabled, setAnswers, answers }) => {
     <div className="questionnaire">
       {Object.values(questions).map((questionnaire) => {
         const { name, disabled, question } = questionnaire || {};
-        if ((disabled || !name) && !answers[name]) {
+        const answer = answers[name];
+        if (disabled || !name) {
           return;
         }
         switch (name) {
           case "done":
             return null;
-          case "leave-contact":
+          case "contact":
             return (
               <div key={name}>
-                <p>{question}</p>
+                <p>{questionnaire.message}</p>
                 <InputField
                   key={name}
-                  title="phone number"
+                  title={question}
                   isRequired
                   setVal={(val) => handlePhoneNumber(val, name)}
+                  val={answer}
                 />
               </div>
             );
@@ -94,7 +99,7 @@ export const Questionnaire = ({ setSubmitEnabled, setAnswers, answers }) => {
                 currentQuestion={questionnaire}
                 onSelectHandler={onSelectHandler}
                 key={name}
-                val={answers[name]}
+                val={answer}
               />
             );
         }

@@ -6,7 +6,7 @@ const Question = ({
   val,
 }) => {
   return (
-    <div>
+    <div className="question">
       <p>{question}</p>
       {yes && (
         <SelectionButton

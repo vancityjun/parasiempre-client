@@ -3,11 +3,20 @@ import InputField from "./InputField";
 import Select from "./Select";
 import Questionnaire from "./Questionnaire";
 import Button from "./Button";
-import { collection, addDoc, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 import { useMemo } from "react";
 import "./Rsvp.scss";
 import RsvpConfirmation from "../RsvpConfirmation";
+import questionnaireFlow from "./questionnaireFlow.json";
 
 const submitStatus = {
   none: "none",
@@ -23,8 +32,8 @@ const Rsvp = () => {
   const [guestCount, setGuestCount] = useState(0);
   const [submitState, setSubmitState] = useState(submitStatus.none);
   const [submissionError, setSubmissionError] = useState(null);
-  const [recordId, setRecordId] = useState('')
-
+  const [recordId, setRecordId] = useState("");
+  const questionState = useState(questionnaireFlow);
   const [answers, setAnswers] = useState({});
 
   const validateEmail = () => {
@@ -55,9 +64,10 @@ const Rsvp = () => {
         timestamp: new Date(),
       };
       try {
-        if (recordId) { 
+        if (recordId) {
           const docRef = doc(db, "rsvps", recordId);
           await updateDoc(docRef, dataToSend);
+          setSubmitState(submitStatus.done);
           return;
         }
         const querySnapshot = await getDocs(
@@ -72,7 +82,7 @@ const Rsvp = () => {
           return;
         }
         const docRef = await addDoc(collection(db, "rsvps"), dataToSend);
-        setRecordId(docRef.id)
+        setRecordId(docRef.id);
         setSubmitState(submitStatus.done);
       } catch (error) {
         console.error("Error adding document: ", error);
@@ -118,7 +128,13 @@ const Rsvp = () => {
         val={lastName}
         setVal={setLastName}
       />
-      <InputField type="email" title={"Email"} isRequired setVal={setEmail} val={email} />
+      <InputField
+        type="email"
+        title={"Email"}
+        isRequired
+        setVal={setEmail}
+        val={email}
+      />
       <Select
         values={Array.from({ length: 10 }, (_, i) => i)}
         onChange={handleGuestCountChange}
@@ -130,6 +146,7 @@ const Rsvp = () => {
         setSubmitEnabled={setSubmitEnabled}
         setAnswers={setAnswers}
         answers={answers}
+        questionState={questionState}
       />
       {submissionError && <p className="error">{submissionError}</p>}
       <Button
