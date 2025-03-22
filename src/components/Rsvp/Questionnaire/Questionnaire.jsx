@@ -75,7 +75,7 @@ export const Questionnaire = ({ setSubmitEnabled, setAnswers, answers }) => {
         }
         switch (name) {
           case "done":
-            break;
+            return null;
           case "leave-contact":
             return (
               <div key={name}>

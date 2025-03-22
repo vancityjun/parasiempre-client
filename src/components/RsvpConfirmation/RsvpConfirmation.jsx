@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import questionnaireFlow from "../Rsvp/Questionnaire/questionnaireFlow.json";
 import "./RsvpConfirmation.scss"
-import Button from "../rsvp/Button";
+import Button from "../Rsvp/Button";
 
 const RsvpConfirmation = ({
   email,

@@ -1,4 +1,4 @@
-import "./inputField.scss";
+import "./InputField.scss";
 
 const InputField = ({ title, type, val, setVal, isRequired = false }) => {
   const onChangeHandler = ({ target: { value } }) => {
