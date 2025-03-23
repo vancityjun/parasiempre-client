@@ -1,6 +1,6 @@
 import questionnaireFlow from "../Rsvp/questionnaireFlow.json";
 import "./RsvpConfirmation.scss";
-import Button from "../Rsvp/Button";
+import Button from "../Button";
 
 const RsvpConfirmation = ({
   email,

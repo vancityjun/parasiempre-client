@@ -1,7 +1,7 @@
 name: Build and Deploy
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,12 +11,12 @@ jobs:
       VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
       VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
     steps:
-        - uses: actions/checkout@v2
-        - name: Install Vercel CLI
-          run: npm install --global vercel
-        - name: Install Dependencies
-          run: npm install
-        - name: Build Project
-          run: npm run build
-        # - name: Deploy to Vercel
-        #   run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+      - uses: actions/checkout@v2
+      - name: Install Vercel CLI
+        run: npm install --global vercel
+      - name: Install Dependencies
+        run: npm install
+      - name: Build Project
+        run: npm run build
+      # - name: Deploy to Vercel
+      #   run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}

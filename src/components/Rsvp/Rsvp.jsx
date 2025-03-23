@@ -2,7 +2,7 @@ import { useState } from "react";
 import InputField from "./InputField";
 import Select from "./Select";
 import Questionnaire from "./Questionnaire";
-import Button from "./Button";
+import Button from "../Button";
 import {
   collection,
   addDoc,
@@ -112,7 +112,7 @@ const Rsvp = () => {
   }
 
   return (
-    <div>
+    <section>
       <h1>RSVP</h1>
       <InputField
         type="text"
@@ -154,7 +154,7 @@ const Rsvp = () => {
         onClick={onClickSend}
         title={isSubmitting ? "Submitting..." : "Submit"}
       />
-    </div>
+    </section>
   );
 };
 
