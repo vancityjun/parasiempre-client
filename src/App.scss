@@ -1,8 +1,30 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 2rem;
 }
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+}
+
+.banner{
+  background-image: url(./assets/imgs/IMG_7441.jpeg);
+  background-position: center;
+  background-size: cover;
+  height: 480px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
 section {
-  margin-bottom: 50px;
+  margin-bottom: 70px;
+  h1{
+    text-align: center;
+  }
+}
+
+.wrapper {
+  padding: 0 26px;
 }

@@ -1,4 +1,4 @@
-import SelectionButton from "../SlectionButton";
+import SelectionButton from "../SelectionButton";
 
 const Question = ({
   currentQuestion: { question, name, yes, no },
