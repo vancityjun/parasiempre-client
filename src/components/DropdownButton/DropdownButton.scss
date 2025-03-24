@@ -1,0 +1,16 @@
+.dropdown {
+  .dropdown-items {
+    box-shadow: -1px 2px 4px 0px #202e38cf;
+    display: inline-flex;
+    flex-direction: column;
+    position: absolute;
+    .dropdown-item-button {
+      background-color: #fff;
+      border-radius: 0;
+    }
+  }
+  .dropdown-button {
+    height: 35px;
+    font-size: 16px;
+  }
+}

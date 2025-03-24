@@ -1,10 +1,9 @@
 import "./Info.scss";
-import Button from "../Button";
+import DropdownButton from "../DropdownButton";
 
 export const Info = () => {
-  const latitude = 47.205423208777496;
-  const longitude = -122.55607080962534;
-  const locationUrl = `://?ll=${latitude},${longitude}`;
+  const address = "9850 64th St W, University Place, WA 98467, United States";
+  const encodedAddress = encodeURIComponent(address);
   const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
   const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
@@ -13,12 +12,25 @@ export const Info = () => {
     /Android|webOS|BlackBerry|IEMobile|Opera Mini/.test(userAgent) || isIOS;
 
   const openGoogleMaps = () => {
-    window.location.href = `comgooglemaps${locationUrl}`;
+    window.location.href = `comgooglemaps://?q=${encodedAddress}`;
   };
 
   const openAppleMaps = () => {
-    window.location.href = `maps${locationUrl}`;
+    window.location.href = `maps://?q=${encodedAddress}`;
   };
+
+  const handleDropdownClick = (toggleDropdown) => {
+    if (!isIOS) {
+      openGoogleMaps();
+    } else {
+      toggleDropdown();
+    }
+  };
+
+  const dropdownItems = [
+    { title: "maps", onClick: openAppleMaps },
+    { title: "Google maps", onClick: openGoogleMaps },
+  ];
 
   return (
     <section>
@@ -30,12 +42,13 @@ export const Info = () => {
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
       ></iframe>
-      <div className="buttons">
-        {isMobile && (
-          <Button title="Open in Google maps" onClick={openGoogleMaps} />
-        )}
-        {isIOS && <Button title="Open in maps" onClick={openAppleMaps} />}
-      </div>
+      {isMobile && (
+        <DropdownButton
+          title="Open in App"
+          onClick={handleDropdownClick}
+          dropdownItems={dropdownItems}
+        />
+      )}
       <p>9850 64th St W, University Place, WA 98467, United States</p>
       <p>2025 May 11th Sunday 2pm</p>
     </section>
