@@ -1,4 +1,5 @@
 import SelectionButton from "../SelectionButton";
+import "./Question.scss";
 
 const Question = ({
   currentQuestion: { question, name, yes, no },
@@ -8,22 +9,24 @@ const Question = ({
   return (
     <div className="question">
       <p>{question}</p>
-      {yes && (
-        <SelectionButton
-          title="Yes"
-          name={name}
-          onSelect={() => onSelectHandler(yes, "yes", name)}
-          checked={val === "yes"}
-        />
-      )}
-      {no && (
-        <SelectionButton
-          title="No"
-          name={name}
-          onSelect={() => onSelectHandler(no, "no", name)}
-          checked={val === "no"}
-        />
-      )}
+      <div className="selection-wrapper">
+        {yes && (
+          <SelectionButton
+            title="Yes"
+            name={name}
+            onSelect={() => onSelectHandler(yes, "yes", name)}
+            checked={val === "yes"}
+          />
+        )}
+        {no && (
+          <SelectionButton
+            title="No"
+            name={name}
+            onSelect={() => onSelectHandler(no, "no", name)}
+            checked={val === "no"}
+          />
+        )}
+      </div>
     </div>
   );
 };
