@@ -2,7 +2,12 @@
   max-width: 1280px;
   margin: 0 auto;
 }
-nav {
+
+.main {
+  margin: 20px;
+}
+
+header {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,11 +26,11 @@ nav {
 
 section {
   margin-bottom: 70px;
-  h1 {
+  h1, h2 {
     text-align: center;
   }
 }
 
 .wrapper {
-  padding: 0 26px;
+  padding: 0 6px;
 }

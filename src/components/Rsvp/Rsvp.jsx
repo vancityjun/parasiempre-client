@@ -112,7 +112,7 @@ const Rsvp = () => {
   }
 
   return (
-    <section>
+    <section className="rsvp">
       <h1>RSVP</h1>
       <InputField
         type="text"

@@ -35,11 +35,15 @@ button {
 h1 {
   font-family: v.$title-font;
   font-size: 2.3rem;
-  margin-bottom: 3.5rem;
+  margin-bottom: 24px;
 }
 
 h2 {
   font-family: v.$title-font;
-  font-size: 21px;
-  margin: 0;
+  font-size: 26px;
+  margin-bottom: 7px;
+}
+
+.align-center {
+  text-align: center;
 }

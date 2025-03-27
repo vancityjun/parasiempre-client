@@ -5,17 +5,17 @@ import Rsvp from "./components/Rsvp";
 function App() {
   return (
     <div className="main">
-      <nav>
-        <h2>Jun & Leslie’s Wedding</h2>
-      </nav>
       <div className="banner"></div>
       <div className="wrapper">
         <section>
-          <h1>We’re inviting you!</h1>
+          <h1>Jun & Leslie’s Wedding</h1>
+          <p className="align-center">
+            We invite you to join us on our special day!
+          </p>
         </section>
         <Info />
-        <Rsvp />
       </div>
+      <Rsvp />
     </div>
   );
 }
