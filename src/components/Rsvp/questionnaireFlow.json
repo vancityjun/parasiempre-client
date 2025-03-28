@@ -1,6 +1,6 @@
 {
-  "outsideState": {
-    "name": "outsideState",
+  "fromOutsideUS": {
+    "name": "fromOutsideUS",
     "question": "Are you coming from outside of US?",
     "yes": "driving",
     "no": "done",
