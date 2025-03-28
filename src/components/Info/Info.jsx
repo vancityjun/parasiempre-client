@@ -28,7 +28,7 @@ export const Info = () => {
   };
 
   const dropdownItems = [
-    { title: "maps", onClick: openAppleMaps },
+    { title: "Maps", onClick: openAppleMaps },
     { title: "Google maps", onClick: openGoogleMaps },
   ];
 
