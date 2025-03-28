@@ -30,7 +30,7 @@ const Rsvp = () => {
   const [submitEnabled, setSubmitEnabled] = useState(false);
   const [email, setEmail] = useState("");
   const [guestCount, setGuestCount] = useState(0);
-  const [submitState, setSubmitState] = useState(submitStatus.none);
+  const [submitState, setSubmitState] = useState(submitStatus);
   const [submissionError, setSubmissionError] = useState(null);
   const [recordId, setRecordId] = useState("");
   const questionState = useState(questionnaireFlow);

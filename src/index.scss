@@ -20,7 +20,7 @@ body {
     background: url("./assets/imgs/background.webp");
     background-position: center;
     background-size: contain;
-    opacity: 0.27; 
+    opacity: 0.27;
     z-index: -1;
   }
 }
@@ -37,7 +37,8 @@ span,
 a,
 input,
 label,
-button {
+button,
+li {
   font-family: v.$primary-font;
   font-weight: 400;
   color: v.$font-color;
@@ -46,6 +47,11 @@ button {
   &.bold {
     font-weight: bold;
   }
+}
+
+li {
+  list-style: none;
+  line-height: 2;
 }
 
 h1 {
