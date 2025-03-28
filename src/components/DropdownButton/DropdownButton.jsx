@@ -24,14 +24,14 @@ export const DropdownButton = ({ title, onClick, dropdownItems }) => {
   }
 
   return (
-    <div className="dropdown">
+    <div className="dropdown" ref={dropdownRef}>
       <Button
         title={title}
         onClick={() => onClick(() => toggleDropdown(!dropdownOpen))}
         className="dropdown-button"
       />
       {dropdownOpen && (
-        <div className="dropdown-items" ref={dropdownRef}>
+        <div className="dropdown-items">
           {dropdownItems.map(({ title, onClick }, index) => (
             <Button
               className="dropdown-item-button"
