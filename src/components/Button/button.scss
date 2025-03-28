@@ -1,8 +1,6 @@
 button {
-  background-color: #bfefff;
-  :disabled {
-    background-color: #def4ff;
-  }
+  background: #55cef6;
+  font-weight: 500;
   border-radius: 8px;
   cursor: pointer;
   transition: border-color 0.25s;
@@ -13,4 +11,9 @@ button {
   justify-content: center;
   min-width: 140px;
   height: 45px;
+  &:disabled {
+    background: #def4ff;
+    color: #546e86;
+    cursor: none;
+  }
 }
