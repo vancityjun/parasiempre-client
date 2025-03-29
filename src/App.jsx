@@ -1,7 +1,7 @@
 import "./App.scss";
 import Info from "./components/Info";
 import Rsvp from "./components/Rsvp";
-// import { Schedules } from "./components/Schedules/Schedules";
+import { Schedules } from "./components/Schedules/Schedules";
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
           </p>
         </section>
         <Info />
-        {/* <Schedules /> */}
+        <Schedules />
       </div>
       <Rsvp />
     </div>

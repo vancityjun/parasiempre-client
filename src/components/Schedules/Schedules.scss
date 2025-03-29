@@ -1,0 +1,37 @@
+@use "../../shared/variables.scss" as v;
+
+.schedule-wrapper{
+    margin-left: 63px;
+    .schedule {
+        box-shadow: 0 2px 4px 0 rgba(88, 120, 131, 0.3);
+        background: #ffffff50;
+        margin-bottom: 50px;
+        border-radius: 8px;
+        padding: 20px;
+        position: relative;
+        &::before {
+            content: '';
+            width: 2.4px;
+            height: 100%;
+            background: v.$font-color;
+            display: block;
+            position: absolute;
+            top: 54px;
+            left: -40px;
+        }
+        &::after { // TODO: switch with icons when found one
+            content: '';
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            background: v.$font-color;
+            display: block;
+            position: absolute;
+            top: 21px;
+            left: -46px;
+        }
+        &:last-child::before {
+            display: none;
+          }
+    }
+}
