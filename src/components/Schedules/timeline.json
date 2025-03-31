@@ -1,18 +1,48 @@
 [
-  { "time": "2:00pm", "content": "Slide show presentation with music" },
-  { "time": "2:15pm", "content": "Introduction of Officiant" },
+  {
+    "time": "2:00pm",
+    "content": "Slide show presentation with music",
+    "className": "presentation"
+  },
+  {
+    "time": "2:15pm",
+    "content": "Introduction of Officiant",
+    "className": "officiant"
+  },
   {
     "time": "2:20pm",
-    "content": "Grand entrance"
+    "content": "Grand entrance",
+    "className": "entrance"
   },
-  { "time": "2:30pm", "content": "Invocation and Opening Prayer" },
+  {
+    "time": "2:30pm",
+    "content": "Invocation and Opening Prayer",
+    "className": "prayer"
+  },
   {
     "time": "2:40pm",
-    "content": "Bible scripture & Sermon"
+    "content": "Bible scripture & Sermon",
+    "className": "bible"
   },
-  { "time": "3:00pm", "content": "Exchange of vows and rings" },
-  { "time": "3:10pm", "content": "Pronouncement" },
-  { "content": "Wedding Song - Jun " },
-  { "time": "3:20", "content": "Pictures with everyone" },
-  { "time": "4:20pm", "content": "Dinner and Party" }
+  {
+    "time": "3:00pm",
+    "content": "Exchange of vows and rings",
+    "className": "vows-rings"
+  },
+  {
+    "time": "3:10pm",
+    "content": "Pronouncement",
+    "className": "pronouncement"
+  },
+  { "content": "Wedding Song - Jun ", "className": "wedding-song" },
+  {
+    "time": "3:20",
+    "content": "Pictures with everyone",
+    "className": "photo"
+  },
+  {
+    "time": "4:20pm",
+    "content": "Dinner and Party",
+    "className": "dinner-party"
+  }
 ]

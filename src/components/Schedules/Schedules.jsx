@@ -4,10 +4,10 @@ import "./Schedules.scss";
 export const Schedules = () => {
   return (
     <section>
-      <h1>Timeline</h1>
+      <h2>Timeline</h2>
       <div className="schedule-wrapper">
-        {timelineData.map(({ time, content }, index) => (
-          <div key={index} className="schedule">
+        {timelineData.map(({ time, content, className }, index) => (
+          <div key={index} className={`schedule ${className}`}>
             <span className="medium-wight">{time}</span>
             <p>{content}</p>
           </div>
