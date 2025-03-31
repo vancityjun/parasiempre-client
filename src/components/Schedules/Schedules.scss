@@ -1,0 +1,86 @@
+@use "../../shared/variables.scss" as v;
+
+.schedule-wrapper {
+  margin-left: 63px;
+  .schedule {
+    box-shadow: 0 2px 4px 0 rgba(88, 120, 131, 0.3);
+    background: #ffffff50;
+    margin-bottom: 50px;
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    &::before {
+      content: "";
+      width: 2.4px;
+      height: 84%;
+      background: v.$font-color;
+      display: block;
+      position: absolute;
+      top: 67px;
+      left: -40px;
+    }
+    &::after {
+      content: "";
+      width: 50px;
+      height: 50px;
+      background-size: cover;
+      display: block;
+      position: absolute;
+      top: 10px;
+      left: -63px;
+    }
+    &:last-child::before {
+      display: none;
+    }
+    &.presentation {
+      &::after {
+        background-image: url("../../assets/icons/presentation.png");
+      }
+    }
+    &.officiant {
+      &::after {
+        background-image: url("../../assets/icons/officiant.png");
+      }
+    }
+    &.entrance {
+      &::after {
+        background-image: url("../../assets/icons/entrance.png");
+      }
+    }
+    &.prayer {
+      &::after {
+        background-image: url("../../assets/icons/prayer.png");
+      }
+    }
+    &.bible {
+      &::after {
+        background-image: url("../../assets/icons/bible.png");
+      }
+    }
+    &.vows-rings {
+      &::after {
+        background-image: url("../../assets/icons/vows-rings.png");
+      }
+    }
+    &.pronouncement {
+      &::after {
+        background-image: url("../../assets/icons/pronouncement.png");
+      }
+    }
+    &.wedding-song {
+      &::after {
+        background-image: url("../../assets/icons/wedding-song.png");
+      }
+    }
+    &.photo {
+      &::after {
+        background-image: url("../../assets/icons/photo.png");
+      }
+    }
+    &.dinner-party {
+      &::after {
+        background-image: url("../../assets/icons/dinner-party.png");
+      }
+    }
+  }
+}

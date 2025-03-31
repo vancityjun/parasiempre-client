@@ -1,5 +1,31 @@
 @use "./shared/variables.scss" as v;
 
+* {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  word-break: keep-all;
+}
+
+body {
+  position: absolute;
+  background: #ecfbff;
+  width: 100%;
+  &::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url("./assets/imgs/background.webp");
+    background-position: center;
+    background-size: contain;
+    opacity: 0.27;
+    z-index: -1;
+  }
+}
+
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -11,19 +37,40 @@ p,
 span,
 a,
 input,
-label {
+label,
+button,
+li {
   font-family: v.$primary-font;
   font-weight: 400;
   color: v.$font-color;
   text-decoration: inherit;
-  font-size: 16px;
+  font-size: v.$font-size-s;
   &.bold {
     font-weight: bold;
   }
 }
 
+li {
+  list-style: none;
+  line-height: 2;
+}
+
 h1 {
   font-family: v.$title-font;
-  font-size: 2.3rem;
-  margin-bottom: 3.5rem;
+  font-size: 37px;
+  margin-bottom: 24px;
+}
+
+h2 {
+  font-family: v.$title-font;
+  font-size: v.$font-size-l;
+  margin-bottom: 7px;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.medium-wight {
+  font-weight: 500;
 }

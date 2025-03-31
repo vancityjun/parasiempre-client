@@ -1,3 +1,14 @@
 .select-field {
   margin-top: 50px;
+  select {
+    height: 45px;
+    width: 90px;
+    padding-left: 6px;
+    background: #f1f7f8;
+    font-size: 16px;
+    display: block;
+    border: 1px solid #1c6091;
+    border-radius: 8px;
+    margin-top: 20px;
+  }
 }

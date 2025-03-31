@@ -1,0 +1,33 @@
+@use "../../../../shared/variables.scss" as v;
+
+.selection-button {
+  input[type="radio"] {
+    display: none;
+  }
+  label {
+    border-radius: 8px;
+    width: 90px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &.yes {
+      color: #044d04;
+      background-color: #d1f0d1;
+      border: 1px solid #afddaf;
+      &.checked {
+        color: #fff;
+        background-color: #468b46;
+      }
+    }
+    &.no {
+      color: #951818;
+      background-color: #ffd4d4;
+      border: 1px solid #e8a9a9;
+      &.checked {
+        color: #fff;
+        background-color: #e36a6a;
+      }
+    }
+  }
+}

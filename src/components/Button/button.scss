@@ -1,0 +1,21 @@
+button {
+  background: #79cbe6;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  border: none;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  height: 45px;
+  padding: 0 20px;
+  margin: 0 auto;
+  &:disabled {
+    background: #def4ff;
+    color: #546e86;
+    cursor: none;
+  }
+}

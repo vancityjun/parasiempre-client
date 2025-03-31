@@ -9,7 +9,7 @@
     "build": "vite build",
     "lint": "eslint src/**/*.{js,jsx}",
     "preview": "vite preview",
-    "lint:fix": "eslint src/**/*.{js,jsx} --fix",
+    "lint:fix": "eslint src/**/*.{js,jsx} --fix && pnpm exec prettier . --write",
     "prettier:fix": "pnpm exec prettier . --write"
   },
   "dependencies": {

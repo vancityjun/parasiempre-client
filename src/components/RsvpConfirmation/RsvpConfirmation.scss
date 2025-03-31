@@ -1,6 +1,20 @@
 @use "../../shared/variables.scss" as v;
 
-.title {
-  font-family: v.$primary-font;
-  font-size: 21px;
+.confirmation {
+  .title {
+    font-family: v.$primary-font;
+    font-weight: 400;
+    margin-bottom: 15px;
+  }
+  .desc {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .answers {
+    margin: 25px 0;
+    b {
+      margin-left: 5px;
+    }
+  }
 }

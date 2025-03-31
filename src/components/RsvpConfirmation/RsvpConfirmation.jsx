@@ -1,6 +1,6 @@
 import questionnaireFlow from "../Rsvp/questionnaireFlow.json";
 import "./RsvpConfirmation.scss";
-import Button from "../Rsvp/Button";
+import Button from "../Button";
 
 const RsvpConfirmation = ({
   email,
@@ -10,24 +10,29 @@ const RsvpConfirmation = ({
   changeAnswer,
 }) => {
   return (
-    <>
-      <p className="title">
-        Thank you for RSVP! we&apos;ll send you a confirmation email to {email}
-      </p>
-      <div>
-        <p>First name: {firstName}</p>
-        <p>Last name: {lastName}</p>
-        <p>Email: {email}</p>
-      </div>
-      <div>
+    <section className="rsvp confirmation">
+      <h2 className="title">Thank you for RSVP!</h2>
+      {/* <p className="desc">
+        We&apos;ll send you a confirmation email to {email}
+      </p> */}
+      <ul className="answers">
+        <li>
+          First name: <b>{firstName}</b>
+        </li>
+        <li>
+          Last name: <b>{lastName}</b>
+        </li>
+        <li>
+          Email: <b>{email}</b>
+        </li>
         {Object.entries(answers).map(([key, answer]) => (
-          <p key={key}>
-            {questionnaireFlow[key].question}: {answer}
-          </p>
+          <li key={key}>
+            {questionnaireFlow[key].question}: <b>{answer}</b>
+          </li>
         ))}
-      </div>
-      <Button title="change my answer" onClick={changeAnswer} />
-    </>
+      </ul>
+      <Button title="Change my answer" onClick={changeAnswer} />
+    </section>
   );
 };
 

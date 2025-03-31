@@ -1,6 +1,6 @@
 {
-  "outsideState": {
-    "name": "outsideState",
+  "fromOutsideUS": {
+    "name": "fromOutsideUS",
     "question": "Are you coming from outside of US?",
     "yes": "driving",
     "no": "done",
@@ -25,7 +25,7 @@
   },
   "contact": {
     "name": "contact",
-    "message": "Leave a phone number we will contact you",
+    "message": "Leave a phone number please. We will contact you",
     "question": "Phone number",
     "next": "done",
     "disabled": true

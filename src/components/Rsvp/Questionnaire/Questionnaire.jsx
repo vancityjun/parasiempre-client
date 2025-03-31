@@ -82,8 +82,8 @@ export const Questionnaire = ({
             return null;
           case "contact":
             return (
-              <div key={name}>
-                <p>{questionnaire.message}</p>
+              <div key={name} className="question">
+                <p className="phone-number-message">{questionnaire.message}</p>
                 <InputField
                   key={name}
                   title={question}

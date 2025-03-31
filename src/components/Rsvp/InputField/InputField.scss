@@ -5,8 +5,9 @@
   flex-direction: column;
   align-items: flex-start;
   margin-top: 50px;
+  border-radius: 0;
   label {
-    font-size: 14px;
+    font-size: 18px;
   }
   input {
     border: none;
@@ -14,6 +15,8 @@
     border-bottom: 1px v.$font-color solid;
     height: 26px;
     width: 100%;
+    background: #f1f7f8;
+    padding: 0 5px;
     &:focus {
       border-bottom: 1px v.$font-color solid;
     }

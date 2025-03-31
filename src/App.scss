@@ -1,5 +1,44 @@
+@use "./shared/variables.scss" as v;
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 2rem;
+}
+
+.main {
+  margin: 20px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+}
+
+.banner {
+  background-image: url(./assets/imgs/IMG_7441.jpeg);
+  background-position: center;
+  background-size: cover;
+  min-height: 480px;
+  height: 70vw;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+section {
+  margin-bottom: 70px;
+  h1,
+  h2 {
+    text-align: center;
+  }
+  &.title {
+    p {
+      font-size: v.$font-size-m;
+    }
+  }
+}
+
+.wrapper {
+  padding: 0 6px;
 }

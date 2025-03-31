@@ -2,7 +2,7 @@ import { useState } from "react";
 import InputField from "./InputField";
 import Select from "./Select";
 import Questionnaire from "./Questionnaire";
-import Button from "./Button";
+import Button from "../Button";
 import {
   collection,
   addDoc,
@@ -30,7 +30,7 @@ const Rsvp = () => {
   const [submitEnabled, setSubmitEnabled] = useState(false);
   const [email, setEmail] = useState("");
   const [guestCount, setGuestCount] = useState(0);
-  const [submitState, setSubmitState] = useState(submitStatus.none);
+  const [submitState, setSubmitState] = useState(submitStatus);
   const [submissionError, setSubmissionError] = useState(null);
   const [recordId, setRecordId] = useState("");
   const questionState = useState(questionnaireFlow);
@@ -112,7 +112,7 @@ const Rsvp = () => {
   }
 
   return (
-    <div>
+    <section className="rsvp">
       <h1>RSVP</h1>
       <InputField
         type="text"
@@ -154,7 +154,7 @@ const Rsvp = () => {
         onClick={onClickSend}
         title={isSubmitting ? "Submitting..." : "Submit"}
       />
-    </div>
+    </section>
   );
 };
 
