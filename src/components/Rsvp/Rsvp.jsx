@@ -49,6 +49,22 @@ const Rsvp = () => {
     return Boolean(firstName && lastName) && validateEmail();
   };
 
+//   import { getFunctions, httpsCallable } from "firebase/functions";
+// import { app } from "./firebase";
+
+// const functions = getFunctions(app);
+// const addRSVP = httpsCallable(functions, "addRSVP");
+
+// const submitRSVP = async (dataToSend) => {
+//   try {
+//     const result = await addRSVP(dataToSend);
+//     console.log(result.data.message); // "RSVP added successfully"
+//   } catch (error) {
+//     console.error("Error: ", error.message); // e.g., "Email already used"
+//     alert(error.message);
+//   }
+  // };
+
   const onClickSend = async () => {
     setSubmitEnabled(false);
     if (validateFields()) {

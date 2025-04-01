@@ -12,9 +12,9 @@ const RsvpConfirmation = ({
   return (
     <section className="rsvp confirmation">
       <h2 className="title">Thank you for RSVP!</h2>
-      {/* <p className="desc">
+      <p className="desc">
         We&apos;ll send you a confirmation email to {email}
-      </p> */}
+      </p>
       <ul className="answers">
         <li>
           First name: <b>{firstName}</b>
