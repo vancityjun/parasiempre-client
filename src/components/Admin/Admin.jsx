@@ -1,7 +1,7 @@
 import { getDocs, collection } from "firebase/firestore";
 import { db } from "../../firebase";
 import useSWR from "swr";
-import  './Admin.scss'
+import "./Admin.scss";
 
 const fetcher = async (path) => {
   const ref = collection(db, path);
@@ -35,9 +35,9 @@ const Admin = () => {
             questionnaireAnswers,
           }) => (
             <tbody key={id}>
-              <td>{}</td>
-              <td>{}</td>
-              <td>{}</td>
+              <td>{firstName}</td>
+              <td>{lastName}</td>
+              <td>{email}</td>
               <td>{guestCount}</td>
               <td>
                 <ul>
