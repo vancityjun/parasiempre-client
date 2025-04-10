@@ -1,24 +1,20 @@
 /* eslint-disable no-undef */
-import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { onCreate, onUpdate } from "firebase-functions/v2/firestore";
-import { initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-import { setApiKey, send } from "@sendgrid/mail";
-import juice from "juice";
-import questionnaireFlow from "../src/components/Rsvp/questionnaireFlow.json";
+const { initializeApp } = require("firebase-admin/app");
+const { getFirestore } = require("firebase-admin/firestore");
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+require("dotenv").config();
 
-// Initialize Firebase Admin
+const sgMail = require("@sendgrid/mail");
+const { SENDGRID_API_KEY, COLLECTION } = process.env;
+
+sgMail.setApiKey(SENDGRID_API_KEY);
 initializeApp();
 const db = getFirestore();
-const rsvpCollection = db.collection("rsvps");
+const rsvpCollection = db.collection(COLLECTION);
 
-const MY_EMAIL = process.env.EMAIL_MY_EMAIL;
-
-setApiKey(process.env.EMAIL_SENDGRID_API_KEY);
-
-// Callable function to add or update RSVP
-export const addRSVP = onCall(async (data) => {
-  const { email, id } = data;
+exports.addRSVP = onCall(async (request) => {
+  const { email, id, ...data } = request.data;
 
   try {
     if (id) {
@@ -44,63 +40,83 @@ export const addRSVP = onCall(async (data) => {
 });
 
 // Helper function to send email
-async function sendEmail(guestData, action) {
-  const { email, firstName, lastName, answers } = guestData;
-  const css = readFileSync("./RsvpConfirmation", "utf8");
+// async function sendEmail(guestData, action, docId) {
+//   const { email, firstName, lastName, answers } = guestData;
+//   // const emailHtml = renderToString(
+//   //   React.createElement(RsvpConfirmation, {
+//   //     email,
+//   //     firstName,
+//   //     lastName,
+//   //     answers,
+//   //   }),
+//   // );
 
-  const mailOptions = {
-    from: MY_EMAIL,
-    to: email,
-    subject: "RSVP Confirmation",
-    html: juice(`
-    <html>
-      <head>
-        <style>${css}</style>
-      </head>
-      <body>
-            <ul className="answers">
-        <li>
-          First name: <b>${firstName}</b>
-        </li>
-        <li>
-          Last name: <b>${lastName}</b>
-        </li>
-        <li>
-          Email: <b>${email}</b>
-        </li>
-        ${Object.entries(answers).map(([key, answer]) => (
-          <li key={key}>
-            {questionnaireFlow[key].question}: <b>{answer}</b>
-          </li>
-        ))}
-      </ul>
-      </body>
-    </html>
-  `),
+//   const mailOptions = {
+//     from: my_email,
+//     to: email,
+//     subject: `Jun & Leslie's Wedding RSVP Confirmation`,
+//     html: `
+//       <!DOCTYPE html>
+//       <html>
+//         <head>
+//           <meta charset="utf-8">
+//         </head>
+//         <body>
+//           ${firstName}
+//           ${lastName}
+//           ${answers}
+//           ${docId}
+//         </body>
+//       </html>
+//     `,
+//   };
+
+//   try {
+//     await sgMail.send(mailOptions);
+//     console.log(`Email sent for ${action} guest ${email}`);
+//     return null; // Success, no return value needed
+//   } catch (error) {
+//     console.error(`Error sending email for ${action}:`, error);
+//     throw new Error(`Failed to send email: ${error.message}`); // Propagate error
+//   }
+// }
+
+async function sendEmail(guestData, docId) {
+  const { email, firstName, lastName, answers } = guestData;
+  const msg = {
+    to: "vancityjun@gmail.com",
+    from: "vancityjun@gmail.com",
+    subject: "new RSVP registered!",
+    text: "and easy to do anywhere, even with Node.js",
+    html: `<div>${firstName} ${lastName}</div>`,
   };
 
-  try {
-    await send(mailOptions);
-    console.log(`Email sent for ${action} guest ${email}`);
-    return null; // Success, no return value needed
-  } catch (error) {
-    console.error(`Error sending email for ${action}:`, error);
-    throw new Error(`Failed to send email: ${error.message}`); // Propagate error
-  }
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log("Email sent");
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 // Trigger for new RSVP creation
-export const sendConfirmationEmailOnCreate = onCreate(
+exports.sendConfirmationEmailOnCreate = onDocumentCreated(
   "rsvps/{id}",
-  (event, context) => {
+  async (event) => {
     const guestData = event.data.data();
-    console.log(guestData, context);
-    return sendEmail(guestData, "created");
+    const docId = event.data.id;
+    return sendEmail(guestData, docId);
   },
 );
 
 // Trigger for RSVP updates
-export const sendConfirmationEmailOnUpdate = onUpdate("rsvps/{id}", (event) => {
-  const guestData = event.data.after.data();
-  return sendEmail(guestData, "updated");
-});
+// module.exports.sendConfirmationEmailOnUpdate = onDocumentUpdated(
+//   "rsvps/{id}",
+//   async (event) => {
+//     const guestData = event.data.after.data();
+//     const docId = event.data.after.id;
+//     return sendEmail(guestData, "updated", docId);
+//   },
+// );
