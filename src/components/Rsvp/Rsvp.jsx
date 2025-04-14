@@ -3,20 +3,12 @@ import InputField from "./InputField";
 import Select from "./Select";
 import Questionnaire from "./Questionnaire";
 import Button from "../Button";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
-import { db } from "../../firebase";
 import { useMemo } from "react";
 import "./Rsvp.scss";
 import RsvpConfirmation from "../RsvpConfirmation";
 import questionnaireFlow from "./questionnaireFlow.json";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { app } from "../../firebase";
 
 const submitStatus = {
   none: "none",
@@ -49,21 +41,8 @@ const Rsvp = () => {
     return Boolean(firstName && lastName) && validateEmail();
   };
 
-//   import { getFunctions, httpsCallable } from "firebase/functions";
-// import { app } from "./firebase";
-
-// const functions = getFunctions(app);
-// const addRSVP = httpsCallable(functions, "addRSVP");
-
-// const submitRSVP = async (dataToSend) => {
-//   try {
-//     const result = await addRSVP(dataToSend);
-//     console.log(result.data.message); // "RSVP added successfully"
-//   } catch (error) {
-//     console.error("Error: ", error.message); // e.g., "Email already used"
-//     alert(error.message);
-//   }
-  // };
+  const functions = getFunctions(app);
+  const addRSVP = httpsCallable(functions, "addRSVP");
 
   const onClickSend = async () => {
     setSubmitEnabled(false);
@@ -77,28 +56,13 @@ const Rsvp = () => {
         email,
         guestCount,
         questionnaireAnswers: answers,
-        timestamp: new Date(),
+        id: recordId,
       };
+
       try {
-        if (recordId) {
-          const docRef = doc(db, "rsvp_test", recordId);
-          await updateDoc(docRef, dataToSend);
-          setSubmitState(submitStatus.done);
-          return;
-        }
-        const querySnapshot = await getDocs(
-          query(
-            collection(db, "rsvp_test"),
-            where("email", "==", dataToSend.email),
-          ),
-        );
-        if (!querySnapshot.empty) {
-          setSubmissionError("Email already exists");
-          setSubmitState(submitStatus.none);
-          return;
-        }
-        const docRef = await addDoc(collection(db, "rsvp_test"), dataToSend);
-        setRecordId(docRef.id);
+        const { data } = await addRSVP(dataToSend);
+        console.log(data.message);
+        setRecordId(data.id);
         setSubmitState(submitStatus.done);
       } catch (error) {
         console.error("Error adding document: ", error);

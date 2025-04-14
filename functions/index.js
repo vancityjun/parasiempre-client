@@ -6,31 +6,31 @@ const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const Mailgun = require("mailgun.js").default;
 const FormData = require("form-data");
 const { MAILGUN_API_KEY } = process.env;
-const COLLECTION = "rsvp_test";
+const COLLECTION = "rsvp";
 
 initializeApp();
 const db = getFirestore();
 const rsvpCollection = db.collection(COLLECTION);
 
 exports.addRSVP = onCall(async (request) => {
-  const { email, id, ...data } = request.data;
+  const { id, ...data } = request.data;
 
   try {
     if (id) {
-      await rsvpCollection.doc(id).update(data);
+      await rsvpCollection.doc(id).update({ ...data, lastUpdated: new Date() });
       return { message: "RSVP updated successfully", id };
     }
 
     // Check for duplicate email
     const querySnapshot = await rsvpCollection
-      .where("email", "==", email)
+      .where("email", "==", data.email)
       .get();
     if (!querySnapshot.empty) {
       throw new HttpsError("already-exists", "Email already exists");
     }
 
     // Add new RSVP
-    const docRef = await rsvpCollection.add(data);
+    const docRef = await rsvpCollection.add({ ...data, timestamp: new Date() });
     return { message: "RSVP added successfully", id: docRef.id };
   } catch (error) {
     if (error instanceof HttpsError) throw error;
@@ -62,16 +62,35 @@ async function sendEmail(guestData) {
 
   const { email, firstName, lastName, answers, id } = guestData;
   try {
-    const data = await mg.messages.create(
-      "sandbox9d9529be61b048f6b35f93a348716ed5.mailgun.org",
-      {
-        from: "Mailgun Sandbox <postmaster@sandbox9d9529be61b048f6b35f93a348716ed5.mailgun.org>",
-        to: [`${firstName} ${lastName} <${email}>`],
-        subject: "Thank you for RSVP",
-        text: "Congratulations Jun Lee, you just sent an email with Mailgun! You are truly awesome!",
-      },
-    );
-    // afterEmailSent(id);
+    const data = await mg.messages.create("para-siempre.love", {
+      from: "Jun & Leslie <wedding@para-siempre.love>",
+      to: [`${firstName} ${lastName} <${email}>`],
+      subject: "Thank you for RSVP",
+      text: "Thank you for RSVP",
+      html: `
+    <html>
+      <head>
+        <style>
+          body { font-family: sans-serif; }
+          .container { padding: 20px; border: 1px solid #eee; }
+          h1 { color: #333; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Thank You for Your RSVP, ${firstName}!</h1>
+          <p>Hi ${firstName} ${lastName},</p>
+          <p>We've received your RSVP for our wedding. We're so excited to celebrate with you!</p>
+          <p>If you need to make any changes, please contact us directly.</p>
+          <br>
+          <p>Warmly,</p>
+          <p>Jun & Leslie</p>
+        </div>
+      </body>
+    </html>
+  `,
+    });
+    afterEmailSent(id);
     return { success: true, data };
   } catch (error) {
     throw new HttpsError("internal", "Failed to send email: " + error.message);
