@@ -3,12 +3,11 @@ const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
-require("dotenv").config();
+const Mailgun = require("mailgun.js").default;
+const FormData = require("form-data");
+const { MAILGUN_API_KEY } = process.env;
+const COLLECTION = "rsvp_test";
 
-const sgMail = require("@sendgrid/mail");
-const { SENDGRID_API_KEY, COLLECTION } = process.env;
-
-sgMail.setApiKey(SENDGRID_API_KEY);
 initializeApp();
 const db = getFirestore();
 const rsvpCollection = db.collection(COLLECTION);
@@ -39,71 +38,50 @@ exports.addRSVP = onCall(async (request) => {
   }
 });
 
-// Helper function to send email
-// async function sendEmail(guestData, action, docId) {
-//   const { email, firstName, lastName, answers } = guestData;
-//   // const emailHtml = renderToString(
-//   //   React.createElement(RsvpConfirmation, {
-//   //     email,
-//   //     firstName,
-//   //     lastName,
-//   //     answers,
-//   //   }),
-//   // );
-
-//   const mailOptions = {
-//     from: my_email,
-//     to: email,
-//     subject: `Jun & Leslie's Wedding RSVP Confirmation`,
-//     html: `
-//       <!DOCTYPE html>
-//       <html>
-//         <head>
-//           <meta charset="utf-8">
-//         </head>
-//         <body>
-//           ${firstName}
-//           ${lastName}
-//           ${answers}
-//           ${docId}
-//         </body>
-//       </html>
-//     `,
-//   };
-
-//   try {
-//     await sgMail.send(mailOptions);
-//     console.log(`Email sent for ${action} guest ${email}`);
-//     return null; // Success, no return value needed
-//   } catch (error) {
-//     console.error(`Error sending email for ${action}:`, error);
-//     throw new Error(`Failed to send email: ${error.message}`); // Propagate error
-//   }
-// }
-
-async function sendEmail(guestData, docId) {
-  const { email, firstName, lastName, answers } = guestData;
-  const msg = {
-    to: "vancityjun@gmail.com",
-    from: "vancityjun@gmail.com",
-    subject: "new RSVP registered!",
-    text: "and easy to do anywhere, even with Node.js",
-    html: `<div>${firstName} ${lastName}</div>`,
-  };
-
-  sgMail
-    .send(msg)
-    .then(() => {
-      console.log("Email sent");
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+async function afterEmailSent(id) {
+  try {
+    const querySnapshot = await rsvpCollection.where("id", "==", id).get();
+    await rsvpCollection
+      .doc(id)
+      .update({ ...querySnapshot, confirmationEmailSent: true });
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError("internal", "Error processing RSVP", error.message);
+  }
 }
+
+async function sendEmail(guestData) {
+  const mailgun = new Mailgun(FormData);
+  if (!MAILGUN_API_KEY) {
+    throw new HttpsError("internal", "API key is not defined");
+  }
+  const mg = mailgun.client({
+    username: "api",
+    key: MAILGUN_API_KEY,
+  });
+
+  const { email, firstName, lastName, answers, id } = guestData;
+  try {
+    const data = await mg.messages.create(
+      "sandbox9d9529be61b048f6b35f93a348716ed5.mailgun.org",
+      {
+        from: "Mailgun Sandbox <postmaster@sandbox9d9529be61b048f6b35f93a348716ed5.mailgun.org>",
+        to: [`${firstName} ${lastName} <${email}>`],
+        subject: "Thank you for RSVP",
+        text: "Congratulations Jun Lee, you just sent an email with Mailgun! You are truly awesome!",
+      },
+    );
+    // afterEmailSent(id);
+    return { success: true, data };
+  } catch (error) {
+    throw new HttpsError("internal", "Failed to send email: " + error.message);
+  }
+}
+exports.sendConfirmationEmail = onCall(sendEmail);
 
 // Trigger for new RSVP creation
 exports.sendConfirmationEmailOnCreate = onDocumentCreated(
-  "rsvps/{id}",
+  `${COLLECTION}/{id}`,
   async (event) => {
     const guestData = event.data.data();
     const docId = event.data.id;

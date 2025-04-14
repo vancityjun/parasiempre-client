@@ -81,14 +81,14 @@ const Rsvp = () => {
       };
       try {
         if (recordId) {
-          const docRef = doc(db, "rsvps", recordId);
+          const docRef = doc(db, "rsvp_test", recordId);
           await updateDoc(docRef, dataToSend);
           setSubmitState(submitStatus.done);
           return;
         }
         const querySnapshot = await getDocs(
           query(
-            collection(db, "rsvps"),
+            collection(db, "rsvp_test"),
             where("email", "==", dataToSend.email),
           ),
         );
@@ -97,7 +97,7 @@ const Rsvp = () => {
           setSubmitState(submitStatus.none);
           return;
         }
-        const docRef = await addDoc(collection(db, "rsvps"), dataToSend);
+        const docRef = await addDoc(collection(db, "rsvp_test"), dataToSend);
         setRecordId(docRef.id);
         setSubmitState(submitStatus.done);
       } catch (error) {

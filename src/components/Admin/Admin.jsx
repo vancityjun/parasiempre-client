@@ -1,10 +1,17 @@
-import { getDocs, collection } from "firebase/firestore";
+import { getDocs, collection, query, orderBy } from "firebase/firestore";
 import { db } from "../../firebase";
 import useSWR from "swr";
 import "./Admin.scss";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { app } from "../../firebase";
+import Button from "../Button";
+
+const functions = getFunctions(app);
+const sendEmail = httpsCallable(functions, "sendConfirmationEmail");
 
 const fetcher = async (path) => {
-  const ref = collection(db, path);
+  const rsvpCollection = collection(db, path);
+  const ref = query(rsvpCollection, orderBy("timestamp", "desc"));
   const snapshot = await getDocs(ref);
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
@@ -22,18 +29,21 @@ const Admin = () => {
           <th>First name</th>
           <th>Last name</th>
           <th>Email</th>
-          <th>guest count</th>
-          <th>answers</th>
+          <th>Guest count</th>
+          <th>Answers</th>
+          <th>Confirmation Email Sent</th>
         </thead>
-        {data.map(
-          ({
+        {data.map((guestData) => {
+          const {
             id,
             firstName,
             lastName,
             email,
             guestCount,
             questionnaireAnswers,
-          }) => (
+            confirmationEmailSent,
+          } = guestData;
+          return (
             <tbody key={id}>
               <td>{firstName}</td>
               <td>{lastName}</td>
@@ -48,9 +58,26 @@ const Admin = () => {
                   ))}
                 </ul>
               </td>
+              <td>
+                {confirmationEmailSent ? (
+                  "done"
+                ) : (
+                  <Button
+                    title="send confirmation email"
+                    onClick={async () => {
+                      try {
+                        const result = await sendEmail(guestData);
+                        console.log(result.data.message);
+                      } catch (error) {
+                        console.error("Error: ", error.message);
+                      }
+                    }}
+                  />
+                )}
+              </td>
             </tbody>
-          ),
-        )}
+          );
+        })}
       </table>
     </div>
   );
