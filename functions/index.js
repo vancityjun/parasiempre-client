@@ -48,15 +48,14 @@ async function sendEmail(guestData, docId) {
     key: MAILGUN_API_KEY,
   });
 
-  const { email, firstName, lastName, answers } = guestData;
+  const { email, firstName, lastName, questionnaireAnswers } = guestData;
+
   try {
     const data = await mg.messages.create("para-siempre.love", {
       from: "Jun & Leslie <no-reply@para-siempre.love>",
       to: [`${firstName} ${lastName} <${email}>`],
       subject: "Thank you for RSVP",
-      text: "Thank you for RSVP",
-      html: `
-        <html>
+      html: `<html>
           <head>
             <style>
               body { font-family: sans-serif; }
@@ -69,13 +68,23 @@ async function sendEmail(guestData, docId) {
               <h1>Thank You for Your RSVP, ${firstName}!</h1>
               <p>Hi ${firstName} ${lastName},</p>
               <p>We've received your RSVP for our wedding. We're so excited to celebrate with you!</p>
+              <p>First name: ${firstName}</p>
+              <p>Last name: ${lastName || "N/A"}</p>
+              ${Object.entries(questionnaireAnswers || {})
+                .map(([key, answer]) => {
+                  const qInfo = require("./questionnaireFlow.json")[key];
+                  return qInfo ? `<p>${qInfo.question}: ${answer}</p>` : "";
+                })
+                .filter((line) => line)
+                .join("\n    ")}
               <br>
+              <p>Need to make changes? Please reply to this email or contact Jun & Leslie directly.</p>
+              <br>  
               <p>Warmly,</p>
               <p>Jun & Leslie</p>
             </div>
           </body>
-        </html>
-      `,
+        </html>`,
     });
     await rsvpCollection.doc(docId).update({ confirmationEmailSent: true });
     return { success: true, data };
