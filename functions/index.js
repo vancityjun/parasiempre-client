@@ -68,6 +68,10 @@ async function sendEmail(guestData, docId) {
               <h1>Thank You for Your RSVP, ${firstName}!</h1>
               <p>Hi ${firstName} ${lastName},</p>
               <p>We've received your RSVP for our wedding. We're so excited to celebrate with you!</p>
+              <h3>When: May 11th Sunday at 2pm</h3>
+              <h3>Where: 9850 64th St W, University Place, WA 98467, United States</h3>
+              <p><a href="${mapLink}" target="_blank">View Map & Directions</a></p>
+              <h4>Your RSVP information:</h4>
               <p>First name: ${firstName}</p>
               <p>Last name: ${lastName || "N/A"}</p>
               ${Object.entries(questionnaireAnswers || {})
@@ -79,6 +83,7 @@ async function sendEmail(guestData, docId) {
                 .join("\n    ")}
               <br>
               <p>Need to make changes? Please reply to this email or contact Jun & Leslie directly.</p>
+              <p>More information at <a href="https://www.para-siempre.love">para-siempre.love</a></p>
               <br>  
               <p>Warmly,</p>
               <p>Jun & Leslie</p>
