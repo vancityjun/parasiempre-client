@@ -48,11 +48,11 @@ async function sendEmail(guestData, docId) {
     key: MAILGUN_API_KEY,
   });
 
-  const { email, firstName, lastName, questionnaireAnswers } = guestData;
+  const { email, firstName, lastName = "", questionnaireAnswers } = guestData;
 
   try {
     const data = await mg.messages.create("para-siempre.love", {
-      from: "Jun & Leslie <no-reply@para-siempre.love>",
+      from: "Jun ❤️ Leslie <no-reply@para-siempre.love>",
       to: [`${firstName} ${lastName} <${email}>`],
       subject: "Thank you for RSVP",
       html: `<html>
@@ -61,6 +61,8 @@ async function sendEmail(guestData, docId) {
               body { font-family: sans-serif; }
               .container { padding: 20px; border: 1px solid #eee; }
               h1 { color: #333; }
+              h3 {font-size: 1.2rem}
+              p {font-size: font-size: 15px; }
             </style>
           </head>
           <body>
@@ -70,8 +72,7 @@ async function sendEmail(guestData, docId) {
               <p>We've received your RSVP for our wedding. We're so excited to celebrate with you!</p>
               <h3>When: May 11th Sunday at 2pm</h3>
               <h3>Where: 9850 64th St W, University Place, WA 98467, United States</h3>
-              <p><a href="${mapLink}" target="_blank">View Map & Directions</a></p>
-              <h4>Your RSVP information:</h4>
+              <p><b>Your RSVP information:</b></p>
               <p>First name: ${firstName}</p>
               <p>Last name: ${lastName || "N/A"}</p>
               ${Object.entries(questionnaireAnswers || {})
@@ -81,12 +82,10 @@ async function sendEmail(guestData, docId) {
                 })
                 .filter((line) => line)
                 .join("\n    ")}
-              <br>
-              <p>Need to make changes? Please reply to this email or contact Jun & Leslie directly.</p>
+              <p>Need to make changes? Please contact Jun & Leslie directly.</p>
               <p>More information at <a href="https://www.para-siempre.love">para-siempre.love</a></p>
-              <br>  
               <p>Warmly,</p>
-              <p>Jun & Leslie</p>
+              <p>Jun ❤️ Leslie</p>
             </div>
           </body>
         </html>`,
@@ -97,7 +96,9 @@ async function sendEmail(guestData, docId) {
     throw new HttpsError("internal", "Failed to send email: " + error.message);
   }
 }
-exports.sendConfirmationEmail = onCall(sendEmail);
+exports.sendConfirmationEmail = onCall(async (request) =>
+  sendEmail(request.data, request.data.id),
+);
 
 // Trigger for new RSVP creation
 exports.sendConfirmationEmailOnCreate = onDocumentCreated(
