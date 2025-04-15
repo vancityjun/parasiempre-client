@@ -1,0 +1,34 @@
+{
+  "fromOutsideUS": {
+    "name": "fromOutsideUS",
+    "question": "Are you coming from outside of US?",
+    "yes": "driving",
+    "no": "done",
+    "next": null,
+    "disabled": false
+  },
+  "driving": {
+    "name": "driving",
+    "question": "Are you driving? (from Canada)",
+    "yes": "done",
+    "no": "needRide",
+    "next": null,
+    "disabled": true
+  },
+  "needRide": {
+    "name": "needRide",
+    "question": "Do you need a ride arrangement?",
+    "yes": "contact",
+    "no": "done",
+    "next": null,
+    "disabled": true
+  },
+  "contact": {
+    "name": "contact",
+    "message": "Leave a phone number please. We will contact you",
+    "question": "Phone number",
+    "next": "done",
+    "disabled": true
+  },
+  "done": null
+}

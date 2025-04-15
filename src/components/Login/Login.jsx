@@ -6,8 +6,12 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const { login } = useAuth();
+  const { login, currentUser } = useAuth();
   const navigate = useNavigate();
+
+  if (currentUser) {
+    navigate("/admin");
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

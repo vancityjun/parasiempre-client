@@ -3,20 +3,12 @@ import InputField from "./InputField";
 import Select from "./Select";
 import Questionnaire from "./Questionnaire";
 import Button from "../Button";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
-import { db } from "../../firebase";
 import { useMemo } from "react";
 import "./Rsvp.scss";
 import RsvpConfirmation from "../RsvpConfirmation";
 import questionnaireFlow from "./questionnaireFlow.json";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { app } from "../../firebase";
 
 const submitStatus = {
   none: "none",
@@ -49,6 +41,9 @@ const Rsvp = () => {
     return Boolean(firstName && lastName) && validateEmail();
   };
 
+  const functions = getFunctions(app);
+  const addRSVP = httpsCallable(functions, "addRSVP");
+
   const onClickSend = async () => {
     setSubmitEnabled(false);
     if (validateFields()) {
@@ -61,28 +56,13 @@ const Rsvp = () => {
         email,
         guestCount,
         questionnaireAnswers: answers,
-        timestamp: new Date(),
+        id: recordId,
       };
+
       try {
-        if (recordId) {
-          const docRef = doc(db, "rsvps", recordId);
-          await updateDoc(docRef, dataToSend);
-          setSubmitState(submitStatus.done);
-          return;
-        }
-        const querySnapshot = await getDocs(
-          query(
-            collection(db, "rsvps"),
-            where("email", "==", dataToSend.email),
-          ),
-        );
-        if (!querySnapshot.empty) {
-          setSubmissionError("Email already exists");
-          setSubmitState(submitStatus.none);
-          return;
-        }
-        const docRef = await addDoc(collection(db, "rsvps"), dataToSend);
-        setRecordId(docRef.id);
+        const { data } = await addRSVP(dataToSend);
+        console.log(data.message);
+        setRecordId(data.id);
         setSubmitState(submitStatus.done);
       } catch (error) {
         console.error("Error adding document: ", error);
