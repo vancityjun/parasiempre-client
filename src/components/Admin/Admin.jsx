@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { getDocs, collection, query, orderBy } from "firebase/firestore";
 import { db } from "../../firebase";
 import useSWR from "swr";
@@ -21,12 +22,18 @@ const Admin = () => {
   const { data, error, isLoading } = useSWR("rsvps", fetcher);
   const { logout } = useAuth();
 
+  const totalGuests = useMemo(() => {
+    if (!data) return 0;
+    return data.reduce((sum, guest) => sum + 1 + guest.guestCount, 0);
+  }, [data]);
+
   if (error) return <div>Failed to load RSVPs: {error.message}</div>;
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div>
+    <div className="admin">
       <Button title="Log out" onClick={logout} />
+      <p className="total">Guest total: {totalGuests}</p>
       <table>
         <thead>
           <th>First name</th>
