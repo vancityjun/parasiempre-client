@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import InputField from "../Rsvp/InputField";
+import Button from "../Button";
+import "./Login.scss";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -9,16 +12,17 @@ const Login = () => {
   const { login, currentUser } = useAuth();
   const navigate = useNavigate();
 
-  if (currentUser) {
-    navigate("/admin");
-  }
+  useEffect(() => {
+    if (currentUser) {
+      navigate("/admin");
+    }
+  }, [currentUser, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     try {
       await login(email, password);
-      navigate("/admin");
     } catch (err) {
       console.log(err.message);
       setError("Invalid email or password");
@@ -26,29 +30,29 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
+    <div className="login">
+      <h2>Login</h2>
       {error && <p>{error}</p>}
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Login</button>
+        <InputField
+          title="Email"
+          isRequired
+          type="email"
+          val={email}
+          setVal={setEmail}
+        />
+        <InputField
+          title="Password"
+          isRequired
+          type="password"
+          val={password}
+          setVal={setPassword}
+        />
+        <Button
+          disabled={!(email && password)}
+          onClick={handleSubmit}
+          title="Login"
+        />
       </form>
     </div>
   );
