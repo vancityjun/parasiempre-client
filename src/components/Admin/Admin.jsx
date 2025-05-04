@@ -90,7 +90,7 @@ const Admin = () => {
           );
         })}
       </table>
-      <Button
+      {/* <Button
         title="Send Reminder"
         onClick={async () => {
           try {
@@ -98,7 +98,7 @@ const Admin = () => {
           } catch (error) {
             console.error(error);
           }
-        }}
+        }} */}
       />
     </div>
   );

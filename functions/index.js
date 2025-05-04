@@ -98,27 +98,53 @@ async function sendEmail(guestData, docId, subject, body, update) {
 }
 
 async function sendReminderEmailToAll() {
-  const snapshot = await rsvpCollection.get();
-  snapshot.forEach((doc) => {
-    const body = `
+  try {
+    const snapshot = await rsvpCollection.get();
+
+    if (snapshot.empty) {
+      console.log("No RSVPs found to send reminders to.");
+      return { message: "No RSVPs found." };
+    }
+
+    const emailPromises = snapshot.docs.map(async (doc) => {
+      const guestData = doc.data(); // Get the actual data
+      const body = `
       Just a friendly reminder about Jun ❤️ Leslie's wedding! Our wedding is 1 week from now!
     `;
-    sendEmail(doc, doc.id, "Hope to see you there!", body, {
-      reminderSent: true,
+      // Pass guestData instead of doc
+      return sendEmail(guestData, doc.id, "Hope to see you there!", body, {
+        reminderSent: true,
+      });
     });
-  });
+
+    await Promise.all(emailPromises); // Wait for ALL email promises to settle
+    console.log(`Attempted to send ${emailPromises.length} reminder emails.`);
+    return {
+      message: `Attempted to send ${emailPromises.length} reminder emails.`,
+    };
+  } catch (error) {
+    console.error("Error sending reminder emails:", error);
+    // Re-throw as HttpsError if you want the client to see a specific error
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError(
+      "internal",
+      "Failed to send reminder emails.",
+      error.message,
+    );
+  }
 }
 
-exports.sendReminderEmail = onCall(sendReminderEmailToAll);
+exports.sendReminderEmail = onCall(async () => await sendReminderEmailToAll());
 
-exports.sendConfirmationEmail = onCall(async (request) =>
-  sendEmail(
-    request.data,
-    request.data.id,
-    "Thank you for RSVP",
-    "We've received your RSVP for our wedding. We're so excited to celebrate with you!",
-    { confirmationEmailSent: true },
-  ),
+exports.sendConfirmationEmail = onCall(
+  async (request) =>
+    await sendEmail(
+      request.data,
+      request.data.id,
+      "Thank you for RSVP",
+      "We've received your RSVP for our wedding. We're so excited to celebrate with you!",
+      { confirmationEmailSent: true },
+    ),
 );
 
 // Trigger for new RSVP creation
