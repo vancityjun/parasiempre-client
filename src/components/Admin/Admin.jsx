@@ -10,6 +10,7 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const functions = getFunctions(app);
 const sendEmail = httpsCallable(functions, "sendConfirmationEmail");
+const sendReminderEmail = httpsCallable(functions, "sendReminderEmail");
 
 const fetcher = async (path) => {
   const rsvpCollection = collection(db, path);
@@ -89,6 +90,16 @@ const Admin = () => {
           );
         })}
       </table>
+      <Button
+        title="Send Reminder"
+        onClick={async () => {
+          try {
+            await sendReminderEmail();
+          } catch (error) {
+            console.error(error);
+          }
+        }}
+      />
     </div>
   );
 };
