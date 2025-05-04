@@ -10,7 +10,7 @@
     "lint": "eslint src/**/*.{js,jsx}",
     "preview": "vite preview",
     "lint:fix": "eslint src/**/*.{js,jsx} --fix && pnpm exec prettier . --write",
-    "prettier:fix": "pnpm exec prettier . --write"
+    "prettier": "pnpm exec prettier . --write"
   },
   "dependencies": {
     "firebase": "^11.3.1",

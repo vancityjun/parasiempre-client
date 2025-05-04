@@ -38,7 +38,7 @@ exports.addRSVP = onCall(async (request) => {
   }
 });
 
-async function sendEmail(guestData, docId) {
+async function sendEmail(guestData, docId, subject, body, update) {
   const mailgun = new Mailgun(FormData);
   if (!MAILGUN_API_KEY) {
     throw new HttpsError("internal", "API key is not defined");
@@ -54,7 +54,7 @@ async function sendEmail(guestData, docId) {
     const data = await mg.messages.create("para-siempre.love", {
       from: "Jun ❤️ Leslie <no-reply@para-siempre.love>",
       to: [`${firstName} ${lastName} <${email}>`],
-      subject: "Thank you for RSVP",
+      subject,
       html: `<html>
           <head>
             <style>
@@ -69,7 +69,7 @@ async function sendEmail(guestData, docId) {
             <div class="container">
               <h1>Thank You for Your RSVP, ${firstName}!</h1>
               <p>Hi ${firstName} ${lastName},</p>
-              <p>We've received your RSVP for our wedding. We're so excited to celebrate with you!</p>
+              <p>${body}</p>
               <h3>When: May 11th Sunday at 2pm</h3>
               <h3>Where: 9850 64th St W, University Place, WA 98467, United States</h3>
               <p><b>Your RSVP information:</b></p>
@@ -90,14 +90,35 @@ async function sendEmail(guestData, docId) {
           </body>
         </html>`,
     });
-    await rsvpCollection.doc(docId).update({ confirmationEmailSent: true });
+    update && (await rsvpCollection.doc(docId).update(update));
     return { success: true, data };
   } catch (error) {
     throw new HttpsError("internal", "Failed to send email: " + error.message);
   }
 }
+
+async function sendReminderEmailToAll() {
+  const snapshot = await rsvpCollection.get();
+  snapshot.forEach((doc) => {
+    const body = `
+      Just a friendly reminder about Jun ❤️ Leslie's wedding! Our wedding is 1 week from now!
+    `;
+    sendEmail(doc, doc.id, "Hope to see you there!", body, {
+      reminderSent: true,
+    });
+  });
+}
+
+exports.sendReminderEmail = onCall(sendReminderEmailToAll);
+
 exports.sendConfirmationEmail = onCall(async (request) =>
-  sendEmail(request.data, request.data.id),
+  sendEmail(
+    request.data,
+    request.data.id,
+    "Thank you for RSVP",
+    "We've received your RSVP for our wedding. We're so excited to celebrate with you!",
+    { confirmationEmailSent: true },
+  ),
 );
 
 // Trigger for new RSVP creation
@@ -110,7 +131,13 @@ exports.sendConfirmationEmailOnCreate = onDocumentCreated(
       console.log(`confirmation email already sent ${guestData.email}`);
       return;
     }
-    return sendEmail(guestData, docId);
+    return sendEmail(
+      guestData,
+      docId,
+      "Thank you for RSVP",
+      "We've received your RSVP for our wedding. We're so excited to celebrate with you!",
+      { confirmationEmailSent: true },
+    );
   },
 );
 
