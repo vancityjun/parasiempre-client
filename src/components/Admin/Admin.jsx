@@ -10,7 +10,7 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const functions = getFunctions(app);
 const sendEmail = httpsCallable(functions, "sendConfirmationEmail");
-const sendReminderEmail = httpsCallable(functions, "sendReminderEmail");
+// const sendReminderEmail = httpsCallable(functions, "sendReminderEmail");
 
 const fetcher = async (path) => {
   const rsvpCollection = collection(db, path);
@@ -98,8 +98,8 @@ const Admin = () => {
           } catch (error) {
             console.error(error);
           }
-        }} */}
-      />
+        }}
+      /> */}
     </div>
   );
 };
