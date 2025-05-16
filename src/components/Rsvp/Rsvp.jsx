@@ -130,7 +130,8 @@ const Rsvp = () => {
       />
       {submissionError && <p className="error">{submissionError}</p>}
       <Button
-        disabled={!submitEnabled || isSubmitting}
+        // disabled={!submitEnabled || isSubmitting}
+        disabled
         onClick={onClickSend}
         title={isSubmitting ? "Submitting..." : "Submit"}
       />
