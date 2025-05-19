@@ -10,13 +10,11 @@ const storage = getStorage(app);
 const MediaGrid = ({ refreshKey }) => {
   const [mediaItems, setMediaItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMedia = async () => {
       setIsLoading(true);
-      setError(null);
       try {
         const photosRef = ref(storage, "photos/");
         const result = await listAll(photosRef);
@@ -30,7 +28,6 @@ const MediaGrid = ({ refreshKey }) => {
         setMediaItems(itemsWithUrls);
       } catch (err) {
         console.error("Error fetching media:", err);
-        setError("Failed to load media. " + err.message);
       } finally {
         setIsLoading(false);
       }
@@ -46,10 +43,6 @@ const MediaGrid = ({ refreshKey }) => {
 
   if (isLoading) {
     return <div className="media-grid-container loading">Loading media...</div>;
-  }
-
-  if (error) {
-    return <div className="media-grid-container error">{error}</div>;
   }
 
   if (mediaItems.length === 0) {
