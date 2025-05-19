@@ -1,64 +1,39 @@
 import { useState, useEffect } from "react";
-import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import { app } from "../../firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import "./MediaGrid.scss";
 import Button from "../Button";
 import { useNavigate } from "react-router";
 
-const storage = getStorage(app);
+const functions = getFunctions(app);
+const listMediaPaginated = httpsCallable(functions, "listMediaPaginated");
+const ITEMS_PER_LOAD = 9;
 
-const MediaGrid = ({ refreshKey }) => {
-  const [mediaItems, setMediaItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchMedia = async () => {
-      setIsLoading(true);
-      try {
-        const photosRef = ref(storage, "photos/");
-        const result = await listAll(photosRef);
-
-        const itemsWithUrls = await Promise.all(
-          result.items.map(async (itemRef) => {
-            const url = await getDownloadURL(itemRef);
-            return { name: itemRef.name, url };
-          }),
-        );
-        setMediaItems(itemsWithUrls);
-      } catch (err) {
-        console.error("Error fetching media:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMedia();
-  }, [refreshKey]);
-
-  const isVideo = (fileName) => {
-    const videoExtensions = [".mp4", ".mov", ".webm", ".quicktime", ".mkv"];
-    return videoExtensions.some((ext) => fileName.toLowerCase().endsWith(ext));
-  };
-
-  if (isLoading) {
-    return <div className="media-grid-container loading">Loading media...</div>;
+// Define MediaGridDisplay as a local component
+const MediaGridDisplay = ({
+  isLoading,
+  mediaItems,
+  isVideo,
+  allMediaLoaded,
+  nextPageToken,
+  isLoadingMore,
+  onLoadMore,
+}) => {
+  if (isLoading && mediaItems.length === 0) {
+    return <div className="status-message loading">Loading media...</div>;
   }
 
-  if (mediaItems.length === 0) {
+  if (!isLoading && mediaItems.length === 0) {
     return (
-      <div className="media-grid-container no-media">
-        No photos or videos found.
-      </div>
+      <div className="status-message no-media">No photos or videos found.</div>
     );
   }
 
   return (
-    <div className="media-grid-container">
-      <h2>Gallery</h2>
+    <>
       <div className="media-grid">
         {mediaItems.map((item) => (
-          <div key={item.name} className="media-item">
+          <div key={item.fullName || item.name} className="media-item">
             {isVideo(item.name) ? (
               <video
                 src={item.url}
@@ -74,9 +49,107 @@ const MediaGrid = ({ refreshKey }) => {
           </div>
         ))}
       </div>
-      <Button title="Share your media" onClick={() => {
+      {!allMediaLoaded && nextPageToken && (
+        <div className="load-more-container">
+          <Button
+            title={isLoadingMore ? "Loading..." : "Load More"}
+            onClick={onLoadMore}
+            disabled={isLoadingMore}
+          />
+        </div>
+      )}
+      {isLoadingMore && (
+        <div className="status-message loading-more">Loading more...</div>
+      )}
+    </>
+  );
+};
+
+const MediaGrid = ({ refreshKey }) => {
+  const [mediaItems, setMediaItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [nextPageToken, setNextPageToken] = useState(null);
+  const [allMediaLoaded, setAllMediaLoaded] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Reset and fetch first page when refreshKey changes
+    setMediaItems([]);
+    setNextPageToken(null);
+    setAllMediaLoaded(false);
+    fetchMediaItems(true); // true for initial load
+  }, [refreshKey]);
+
+  const fetchMediaItems = async (
+    isInitialLoad = false,
+    tokenForNextPage = null,
+  ) => {
+    if (!isInitialLoad && isLoadingMore) return; // Prevent multiple "load more" requests
+    if (allMediaLoaded && !isInitialLoad) return; // Don't fetch if all loaded
+
+    if (isInitialLoad) {
+      setIsLoading(true);
+    } else {
+      setIsLoadingMore(true);
+    }
+
+    try {
+      const result = await listMediaPaginated({
+        pageSize: ITEMS_PER_LOAD,
+        pageToken: isInitialLoad ? null : tokenForNextPage,
+      });
+
+      const newItemsWithUrls = result.data.mediaItems;
+
+      setMediaItems((prevItems) =>
+        isInitialLoad ? newItemsWithUrls : [...prevItems, ...newItemsWithUrls],
+      );
+
+      if (result.data.nextPageToken) {
+        setNextPageToken(result.data.nextPageToken);
+        setAllMediaLoaded(false);
+      } else {
+        setNextPageToken(null);
+        setAllMediaLoaded(true);
+      }
+    } catch (err) {
+      console.error("Error fetching media:", err);
+    } finally {
+      if (isInitialLoad) {
+        setIsLoading(false);
+      } else {
+        setIsLoadingMore(false);
+      }
+    }
+  };
+
+  const isVideo = (fileName) => {
+    const videoExtensions = [".mp4", ".mov", ".webm", ".quicktime", ".mkv"];
+    return videoExtensions.some((ext) => fileName.toLowerCase().endsWith(ext));
+  };
+
+  return (
+    <div className="media-grid-container">
+      <h2>Gallery</h2>
+
+      <MediaGridDisplay
+        isLoading={isLoading}
+        mediaItems={mediaItems}
+        isVideo={isVideo}
+        allMediaLoaded={allMediaLoaded}
+        nextPageToken={nextPageToken}
+        isLoadingMore={isLoadingMore}
+        onLoadMore={() => fetchMediaItems(false, nextPageToken)}
+      />
+
+      <Button
+        title="Share your media"
+        onClick={() => {
           navigate("/upload");
-        }} />
+        }}
+        className="upload-button-spacing"
+      />
     </div>
   );
 };

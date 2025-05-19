@@ -4,6 +4,7 @@ import { app } from "../../firebase";
 import Button from "../Button";
 import "./MediaUploader.scss";
 import { useNavigate } from "react-router";
+import InputField from "../Rsvp/InputField";
 
 const storage = getStorage(app);
 
@@ -12,6 +13,8 @@ const MediaUploader = ({ onUploadSuccess }) => {
   const [filesToUpload, setFilesToUpload] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  const [uploaderFirstName, setUploaderFirstName] = useState("");
+  const [uploaderLastName, setUploaderLastName] = useState("");
   const navigate = useNavigate();
 
   const handleFileChange = (event) => {
@@ -64,7 +67,14 @@ const MediaUploader = ({ onUploadSuccess }) => {
     try {
       const uploadPromises = filesToUpload.map(async (file) => {
         const storageRef = ref(storage, `photos/${file.name}`);
-        await uploadBytes(storageRef, file);
+        const uploadMetadata = {
+          customMetadata: {
+            uploaderFirstName: uploaderFirstName || "unknown",
+            uploaderLastName: uploaderLastName || "",
+            uploadedAt: new Date().toISOString(),
+          },
+        };
+        await uploadBytes(storageRef, file, uploadMetadata);
         return getDownloadURL(storageRef);
       });
       const urls = await Promise.all(uploadPromises);
@@ -73,6 +83,8 @@ const MediaUploader = ({ onUploadSuccess }) => {
       if (onUploadSuccess) {
         onUploadSuccess();
       }
+      setUploaderFirstName("");
+      setUploaderLastName("");
       navigate("/");
     } catch (err) {
       setError("Failed to upload photos: " + err.message);
@@ -151,13 +163,32 @@ const MediaUploader = ({ onUploadSuccess }) => {
             </div>
           </div>
         )}
-        <Button
-          onClick={handleUpload}
-          disabled={filesToUpload.length === 0 || uploading}
-          title={uploading ? "Uploading..." : "Upload Photos"}
-        />
-        {error && <p className="error-message">{error}</p>}
       </div>
+      <p className="form-note">
+        Help us know who shared these lovely memories!
+      </p>
+      <div className="uploader-info-form">
+        <InputField
+          type="text"
+          title="Your First Name (Optional)"
+          value={uploaderFirstName}
+          onChange={(e) => setUploaderFirstName(e.target.value)}
+          className="uploader-name-input"
+        />
+        <InputField
+          type="text"
+          title="Your Last Name (Optional)"
+          value={uploaderLastName}
+          onChange={(e) => setUploaderLastName(e.target.value)}
+          className="uploader-name-input"
+        />
+      </div>
+      <Button
+        onClick={handleUpload}
+        disabled={filesToUpload.length === 0 || uploading}
+        title={uploading ? "Uploading..." : "Upload Photos"}
+      />
+      {error && <p className="error-message">{error}</p>}
     </div>
   );
 };

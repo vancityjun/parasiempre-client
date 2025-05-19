@@ -5,7 +5,8 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const Mailgun = require("mailgun.js").default;
 const FormData = require("form-data");
-const { MAILGUN_API_KEY } = process.env;
+const { getStorage } = require("firebase-admin/storage");
+// const { MAILGUN_API_KEY } = process.env;
 const COLLECTION = "rsvps";
 
 initializeApp();
@@ -122,7 +123,7 @@ async function sendEmail(
             <h1>Thank You for Celebrating With Us, ${firstName}!</h1>
             <p>Hi ${firstName} ${lastName || ""},</p>
             <p>${body}</p>
-            <p>We'd love to see all the wonderful moments you captured! Please share your photos and videos from the wedding on our website: <a href="https://www.para-siempre.love">para-siempre.love</a>.</p>
+            <p>We'd love to see all the wonderful moments you captured! Please share your photos and videos from the wedding on our website: <a href="https://www.para-siempre.love/upload">para-siempre.love/upload</a>.</p>
             <p>You can also send them directly to Jun & Leslie's families.</p>
             <p>Warmly,</p>
             <p>Jun ❤️ Leslie</p>
@@ -290,3 +291,52 @@ exports.sendConfirmationEmailOnCreate = onDocumentCreated(
 //     return sendEmail(guestData, docId);
 //   },
 // );
+
+exports.listMediaPaginated = onCall(async (request) => {
+  const bucket = getStorage().bucket();
+  const pageSize =
+    request.data.pageSize &&
+    Number.isInteger(request.data.pageSize) &&
+    request.data.pageSize > 0
+      ? request.data.pageSize
+      : 9;
+  const pageToken = request.data.pageToken || undefined;
+  const prefix = "photos/";
+  try {
+    const [files, nextQuery] = await bucket.getFiles({
+      prefix: prefix,
+      maxResults: pageSize,
+      pageToken: pageToken,
+      autoPaginate: false,
+    });
+
+    const itemsWithUrls = await Promise.all(
+      files
+        .filter((file) => file.name !== prefix && !file.name.endsWith("/")) // Filter out the prefix folder itself and any sub-folder objects
+        .map(async (file) => {
+          // Generate a signed URL for each file. These URLs have an expiration.
+          // Ensure your service account has "Storage Object Viewer" role or similar.
+          const [url] = await file.getSignedUrl({
+            action: "read",
+            expires: Date.now() + 15 * 60 * 1000, // URL expires in 15 minutes
+          });
+          // Get name relative to prefix for display, but keep full name for unique key
+          const displayName = file.name.substring(prefix.length);
+          return { name: displayName, url, fullName: file.name };
+        }),
+    );
+
+    return {
+      mediaItems: itemsWithUrls,
+      nextPageToken:
+        nextQuery && nextQuery.pageToken ? nextQuery.pageToken : null,
+    };
+  } catch (error) {
+    console.error("Error listing files in Firebase Function:", error);
+    throw new HttpsError(
+      "internal",
+      "Failed to list media files. Please try again later.",
+      error.message,
+    );
+  }
+});

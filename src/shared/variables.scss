@@ -1,14 +1,44 @@
+@use "sass:color";
 @import url("https://fonts.googleapis.com/css2?family=Handlee&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap");
 
+// Breakpoints
 $mobile_breakpoint: 320px;
 $tablet_breakpoint: 600px;
 $desktop_breakpoint: 1024px;
 
-$font-size-s: 20px;
-$font-size-m: 24px;
-$font-size-l: 29px;
+// Fonts
 $primary-font: "Tajawal", serif;
 $title-font: "Handlee", serif;
 
+$font-size-s: 20px;
+$font-size-m: 24px;
+$font-size-l: 29px;
+$font-size-xs: calc(#{$font-size-s} * 0.9);
+
 $font-color: #21374c;
 $alert-color: #ce2323;
+
+// Derived & UI Element Colors
+$color-text-default: $font-color;
+$color-text-muted: color.adjust($font-color, $lightness: 30%);
+$color-text-light: #ffffff;
+
+$color-border-default: color.adjust($font-color, $lightness: 60%);
+$primary-color: color.adjust($font-color, $lightness: -10%);
+
+$color-background-light: #ffffff;
+$color-background-muted: color.adjust($font-color, $lightness: 70%);
+
+$color-error: $alert-color;
+$color-error-dark: color.adjust($alert-color, $lightness: -10%);
+
+// Icon Sizes
+$icon-size-large: 3rem;
+
+// Border Radius
+$border-radius-small: 3px;
+$border-radius-base: 5px;
+
+// Box Shadows (using semi-transparent black for neutrality)
+$box-shadow-base: 0 2px 5px rgba(0, 0, 0, 0.1);
+$box-shadow-small: 0 1px 3px rgba(0, 0, 0, 0.15);
