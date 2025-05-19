@@ -38,7 +38,14 @@ exports.addRSVP = onCall(async (request) => {
   }
 });
 
-async function sendEmail(guestData, docId, subject, body, update) {
+async function sendEmail(
+  guestData,
+  docId,
+  subject,
+  body,
+  emailType = "rsvpConfirmation",
+  update,
+) {
   const mailgun = new Mailgun(FormData);
   if (!MAILGUN_API_KEY) {
     throw new HttpsError("internal", "API key is not defined");
@@ -50,45 +57,86 @@ async function sendEmail(guestData, docId, subject, body, update) {
 
   const { email, firstName, lastName = "", questionnaireAnswers } = guestData;
 
-  try {
-    const data = await mg.messages.create("para-siempre.love", {
-      from: "Jun ❤️ Leslie <no-reply@para-siempre.love>",
-      to: [`${firstName} ${lastName} <${email}>`],
-      subject,
-      html: `<html>
-          <head>
-            <style>
-              body { font-family: sans-serif; }
-              .container { padding: 20px; border: 1px solid #eee; }
-              h1 { color: #333; }
-              h3 {font-size: 1.2rem}
-              p {font-size: font-size: 15px; }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h1>Thank You for Your RSVP, ${firstName}!</h1>
-              <p>Hi ${firstName} ${lastName},</p>
-              <p>${body}</p>
-              <h3>When: May 11th Sunday at 2pm</h3>
-              <h3>Where: 9850 64th St W, University Place, WA 98467, United States</h3>
-              <p><b>Your RSVP information:</b></p>
+  let htmlContent = "";
+
+  const styles = `
+    <style>
+      body { font-family: sans-serif; color: #333; }
+      .container { padding: 20px; border: 1px solid #eee; max-width: 600px; margin: 20px auto; }
+      h1 { color: #d49a9a; font-size: 1.8rem; }
+      h3 { font-size: 1.2rem; color: #555; }
+      p { font-size: 15px; line-height: 1.6; }
+      a { color: #d49a9a; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .info-block { margin-top: 15px; padding-top: 15px; border-top: 1px solid #f0f0f0; }
+    </style>
+  `;
+
+  if (emailType === "rsvpConfirmation" || emailType === "reminder") {
+    htmlContent = `
+      <html>
+        <head>${styles}</head>
+        <body>
+          <div class="container">
+            <h1>${emailType === "reminder" ? "Friendly Reminder!" : `Thank You for Your RSVP, ${firstName}!`}</h1>
+            <p>Hi ${firstName} ${lastName || ""},</p>
+            <p>${body}</p>
+            <div class="info-block">
+              <h3>Event Details:</h3>
+              <p><strong>When:</strong> May 11th, Sunday at 2:00 PM</p>
+              <p><strong>Where:</strong> 9850 64th St W, University Place, WA 98467, United States</p>
+            </div>
+            ${
+              emailType === "rsvpConfirmation" && questionnaireAnswers
+                ? `
+            <div class="info-block">
+              <p><b>Your RSVP Information:</b></p>
               <p>First name: ${firstName}</p>
               <p>Last name: ${lastName || "N/A"}</p>
               ${Object.entries(questionnaireAnswers || {})
                 .map(([key, answer]) => {
                   const qInfo = require("./questionnaireFlow.json")[key];
-                  return qInfo ? `<p>${qInfo.question}: ${answer}</p>` : "";
+                  return qInfo
+                    ? `<p><strong>${qInfo.question}:</strong> ${answer}</p>`
+                    : "";
                 })
                 .filter((line) => line)
                 .join("\n    ")}
               <p>Need to make changes? Please contact Jun & Leslie directly.</p>
-              <p>More information at <a href="https://www.para-siempre.love">para-siempre.love</a></p>
-              <p>Warmly,</p>
-              <p>Jun ❤️ Leslie</p>
             </div>
-          </body>
-        </html>`,
+            `
+                : ""
+            }
+            <p>More information at <a href="https://www.para-siempre.love">para-siempre.love</a></p>
+            <p>Warmly,</p>
+            <p>Jun ❤️ Leslie</p>
+          </div>
+        </body>
+      </html>`;
+  } else if (emailType === "afterWedding") {
+    htmlContent = `
+      <html>
+        <head>${styles}</head>
+        <body>
+          <div class="container">
+            <h1>Thank You for Celebrating With Us, ${firstName}!</h1>
+            <p>Hi ${firstName} ${lastName || ""},</p>
+            <p>${body}</p>
+            <p>We'd love to see all the wonderful moments you captured! Please share your photos and videos from the wedding on our website: <a href="https://www.para-siempre.love">para-siempre.love</a>.</p>
+            <p>You can also send them directly to Jun & Leslie's families.</p>
+            <p>Warmly,</p>
+            <p>Jun ❤️ Leslie</p>
+          </div>
+        </body>
+      </html>`;
+  }
+
+  try {
+    const data = await mg.messages.create("para-siempre.love", {
+      from: "Jun ❤️ Leslie <no-reply@para-siempre.love>",
+      to: [`${firstName} ${lastName} <${email}>`],
+      subject,
+      html: htmlContent,
     });
     update && (await rsvpCollection.doc(docId).update(update));
     return { success: true, data };
@@ -109,12 +157,18 @@ async function sendReminderEmailToAll() {
     const emailPromises = snapshot.docs.map(async (doc) => {
       const guestData = doc.data(); // Get the actual data
       const body = `
-      Just a friendly reminder about Jun ❤️ Leslie's wedding! Our wedding is 1 week from now!
+      Just a friendly reminder about our wedding! We're so excited to celebrate with you soon. Our special day is just one week away!
     `;
-      // Pass guestData instead of doc
-      return sendEmail(guestData, doc.id, "Hope to see you there!", body, {
-        reminderSent: true,
-      });
+      return sendEmail(
+        guestData,
+        doc.id,
+        "Wedding Reminder: Jun ❤️ Leslie",
+        body,
+        "reminder",
+        {
+          reminderSent: true,
+        },
+      );
     });
 
     await Promise.all(emailPromises); // Wait for ALL email promises to settle
@@ -134,7 +188,60 @@ async function sendReminderEmailToAll() {
   }
 }
 
+async function sendAfterMailToAll() {
+  try {
+    const snapshot = await rsvpCollection.get();
+
+    if (snapshot.empty) {
+      console.log("No RSVPs found to send email to.");
+      return { message: "No RSVPs found." };
+    }
+
+    const emailPromises = snapshot.docs.map(async (doc) => {
+      const guestData = doc.data();
+      if (!guestData.shownUp) {
+        // Send only if they showed up
+        console.log(
+          `Skipping "after wedding" email for ${guestData.email} because they were marked as not shown up.`,
+        );
+        return;
+      }
+      const body = `
+      Thank you so much for celebrating with us at our wedding! We hope you had a wonderful time sharing in our joy.
+    `;
+
+      return sendEmail(
+        guestData,
+        doc.id,
+        "Thank you for joining Jun ❤️ Leslie's wedding!",
+        body,
+        "afterWedding",
+        {
+          afterEmailSent: true,
+        },
+      );
+    });
+
+    await Promise.all(emailPromises);
+    const msg = `Attempted to send ${emailPromises.length} after emails.`;
+    console.log(msg);
+    return {
+      message: msg,
+    };
+  } catch (error) {
+    console.error("Error sending after emails:", error);
+    // Re-throw as HttpsError if you want the client to see a specific error
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError(
+      "internal",
+      "Failed to send after emails.",
+      error.message,
+    );
+  }
+}
+
 exports.sendReminderEmail = onCall(async () => await sendReminderEmailToAll());
+exports.sendAfterEmail = onCall(async () => await sendAfterMailToAll());
 
 exports.sendConfirmationEmail = onCall(
   async (request) =>
@@ -143,8 +250,14 @@ exports.sendConfirmationEmail = onCall(
       request.data.id,
       "Thank you for RSVP",
       "We've received your RSVP for our wedding. We're so excited to celebrate with you!",
+      "rsvpConfirmation",
       { confirmationEmailSent: true },
     ),
+);
+
+exports.toggleShowUp = onCall(
+  async ({ data: { shownUp, id } }) =>
+    await rsvpCollection.doc(id).update({ shownUp }),
 );
 
 // Trigger for new RSVP creation
@@ -162,6 +275,7 @@ exports.sendConfirmationEmailOnCreate = onDocumentCreated(
       docId,
       "Thank you for RSVP",
       "We've received your RSVP for our wedding. We're so excited to celebrate with you!",
+      "rsvpConfirmation",
       { confirmationEmailSent: true },
     );
   },

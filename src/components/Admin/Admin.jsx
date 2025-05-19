@@ -10,7 +10,8 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const functions = getFunctions(app);
 const sendEmail = httpsCallable(functions, "sendConfirmationEmail");
-// const sendReminderEmail = httpsCallable(functions, "sendReminderEmail");
+const toggleShowUp = httpsCallable(functions, "toggleShowUp");
+const sendAfterEmail = httpsCallable(functions, "sendAfterEmail");
 
 const fetcher = async (path) => {
   const rsvpCollection = collection(db, path);
@@ -43,6 +44,7 @@ const Admin = () => {
           <th>Guest count</th>
           <th>Answers</th>
           <th>Confirmation Email Sent</th>
+          <th>Shown up</th>
         </thead>
         {data.map((guestData) => {
           const {
@@ -53,6 +55,7 @@ const Admin = () => {
             guestCount,
             questionnaireAnswers,
             confirmationEmailSent,
+            shownUp = true,
           } = guestData;
           return (
             <tbody key={id}>
@@ -86,20 +89,26 @@ const Admin = () => {
                   />
                 )}
               </td>
+              <td>
+                <Button
+                  title={shownUp ? "Toggle not shown up" : "Toggle shown up"}
+                  onClick={toggleShowUp({ id, shownUp: !shownUp })}
+                />
+              </td>
             </tbody>
           );
         })}
       </table>
-      {/* <Button
-        title="Send Reminder"
+      <Button
+        title="Send After Email"
         onClick={async () => {
           try {
-            await sendReminderEmail();
+            await sendAfterEmail();
           } catch (error) {
             console.error(error);
           }
         }}
-      /> */}
+      />
     </div>
   );
 };
