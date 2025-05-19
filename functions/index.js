@@ -340,3 +340,41 @@ exports.listMediaPaginated = onCall(async (request) => {
     );
   }
 });
+
+exports.deleteMediaItem = onCall(async (request) => {
+  // Check if the user is authenticated (Firebase automatically does this for onCall)
+  if (!request.auth) {
+    throw new HttpsError(
+      "unauthenticated",
+      "The function must be called while authenticated.",
+    );
+  }
+
+  const { fullName } = request.data; // e.g., "photos/my-image.jpg"
+  if (!fullName || typeof fullName !== "string") {
+    throw new HttpsError(
+      "invalid-argument",
+      "The function must be called with a 'fullName' (string) argument representing the full path to the file.",
+    );
+  }
+
+  logger.info(
+    `Attempting to delete media item: ${fullName} by user: ${request.auth.uid}`,
+  );
+
+  try {
+    const bucket = getStorage().bucket();
+    const file = bucket.file(fullName);
+
+    await file.delete();
+    logger.info(`Successfully deleted ${fullName}`);
+    return { success: true, message: `Successfully deleted ${fullName}` };
+  } catch (error) {
+    logger.error(`Failed to delete ${fullName}:`, error);
+    throw new HttpsError(
+      "internal",
+      "Failed to delete media item.",
+      error.message,
+    );
+  }
+});

@@ -1,24 +1,33 @@
-@use "../../shared/variables.scss" as v;
-
 .media-grid-container {
-  margin: 30px 0;
+  text-align: center;
 
-  h2 {
-    text-align: center;
+  .media-grid-instruction {
+    font-size: 0.95em;
+    color: #555; 
+    // margin-top: -10px;
     margin-bottom: 20px;
-    color: v.$font-color;
+    font-style: italic;
   }
 
   .media-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    @media (max-width: 480px) {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
     gap: 10px;
+    padding: 20px;
 
     .media-item {
       position: relative;
       width: 100%;
-      padding-bottom: 100%;
+      padding-top: 100%; // Creates a square aspect ratio for the container
       overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
       img,
       video {
@@ -29,14 +38,51 @@
         height: 100%;
         object-fit: cover;
       }
+
+      .delete-media-btn {
+        all: unset;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: rgba(255, 0, 0, 0.6);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+        line-height: 28px; // Center the '×' vertically
+        text-align: center;
+        cursor: pointer;
+        z-index: 2;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: rgba(200, 0, 0, 0.8);
+        }
+      }
+
+      // Overlay to make right-click saving harder
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+        z-index: 1;
+      }
     }
   }
 
-  .loading,
-  .error,
-  .no-media {
-    text-align: center;
+  .status-message {
     padding: 20px;
     font-style: italic;
+  }
+
+  .load-more-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
   }
 }

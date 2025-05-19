@@ -4,12 +4,13 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import "./MediaGrid.scss";
 import Button from "../Button";
 import { useNavigate } from "react-router";
+import { useAuth } from "../../contexts/AuthContext";
 
 const functions = getFunctions(app);
 const listMediaPaginated = httpsCallable(functions, "listMediaPaginated");
+const deleteMediaItemCallable = httpsCallable(functions, "deleteMediaItem");
 const ITEMS_PER_LOAD = 9;
 
-// Define MediaGridDisplay as a local component
 const MediaGridDisplay = ({
   isLoading,
   mediaItems,
@@ -18,6 +19,8 @@ const MediaGridDisplay = ({
   nextPageToken,
   isLoadingMore,
   onLoadMore,
+  currentUser, // Pass currentUser
+  onDelete, // Pass onDelete handler
 }) => {
   if (isLoading && mediaItems.length === 0) {
     return <div className="status-message loading">Loading media...</div>;
@@ -41,10 +44,26 @@ const MediaGridDisplay = ({
                 muted
                 loop
                 playsInline
+                draggable="false"
                 alt={`Video ${item.name}`}
+                title="Press and hold to download"
               />
             ) : (
-              <img src={item.url} alt={`Photo ${item.name}`} />
+              <img
+                src={item.url}
+                alt={`Photo ${item.name}`}
+                draggable="false"
+                title="Press and hold to download"
+              />
+            )}
+            {currentUser && (
+              <button
+                className="delete-media-btn"
+                onClick={() => onDelete(item.fullName)}
+                title="Delete Media"
+              >
+                &times;
+              </button>
             )}
           </div>
         ))}
@@ -72,9 +91,9 @@ const MediaGrid = ({ refreshKey }) => {
   const [nextPageToken, setNextPageToken] = useState(null);
   const [allMediaLoaded, setAllMediaLoaded] = useState(false);
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
-    // Reset and fetch first page when refreshKey changes
     setMediaItems([]);
     setNextPageToken(null);
     setAllMediaLoaded(false);
@@ -129,6 +148,22 @@ const MediaGrid = ({ refreshKey }) => {
     return videoExtensions.some((ext) => fileName.toLowerCase().endsWith(ext));
   };
 
+  const handleDeleteMedia = async (fullName) => {
+    // Add a confirmation dialog here
+    // if (!window.confirm("Are you sure you want to delete this item?")) return;
+
+    try {
+      await deleteMediaItemCallable({ fullName });
+      // Remove the item from the local state to update UI immediately
+      setMediaItems((prevItems) =>
+        prevItems.filter((item) => item.fullName !== fullName),
+      );
+      console.log("Successfully deleted:", fullName);
+    } catch (err) {
+      console.error("Error deleting media:", err);
+    }
+  };
+
   return (
     <div className="media-grid-container">
       <h2>Gallery</h2>
@@ -141,8 +176,12 @@ const MediaGrid = ({ refreshKey }) => {
         nextPageToken={nextPageToken}
         isLoadingMore={isLoadingMore}
         onLoadMore={() => fetchMediaItems(false, nextPageToken)}
+        currentUser={currentUser}
+        onDelete={handleDeleteMedia}
       />
-
+      <p className="media-grid-instruction">
+        Press and hold an image or video to download.
+      </p>
       <Button
         title="Share your media"
         onClick={() => {
