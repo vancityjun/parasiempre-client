@@ -358,7 +358,7 @@ exports.deleteMediaItem = onCall(async (request) => {
     );
   }
 
-  logger.info(
+  console.log(
     `Attempting to delete media item: ${fullName} by user: ${request.auth.uid}`,
   );
 
@@ -367,10 +367,10 @@ exports.deleteMediaItem = onCall(async (request) => {
     const file = bucket.file(fullName);
 
     await file.delete();
-    logger.info(`Successfully deleted ${fullName}`);
+    console.log(`Successfully deleted ${fullName}`);
     return { success: true, message: `Successfully deleted ${fullName}` };
   } catch (error) {
-    logger.error(`Failed to delete ${fullName}:`, error);
+    console.error(`Failed to delete ${fullName}:`, error);
     throw new HttpsError(
       "internal",
       "Failed to delete media item.",
