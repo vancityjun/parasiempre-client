@@ -5,7 +5,7 @@ import "./MediaGrid.scss";
 import Button from "../Button";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../contexts/AuthContext";
-import FullScreenMediaModal from "../FullScreenMediaModal";
+import FullScreenMediaModal from "../FullScreenMediaModal/FullScreenMediaModal"; // Corrected import path
 
 const functions = getFunctions(app);
 const listMediaPaginated = httpsCallable(functions, "listMediaPaginated");
@@ -41,7 +41,7 @@ const MediaGridDisplay = ({
           <div
             key={item.fullName || item.name}
             className="media-item"
-            onClick={() => onMediaClick(item)} // Call onMediaClick
+            onClick={() => onMediaClick(item)}
           >
             {isVideo(item.name) ? (
               <video
@@ -66,7 +66,7 @@ const MediaGridDisplay = ({
               <button
                 className="delete-media-btn"
                 onClick={(e) => {
-                  e.stopPropagation();
+                  e.stopPropagation(); // Prevent opening modal when deleting
                   onDelete(item.fullName);
                 }}
                 title="Delete Media"
@@ -101,7 +101,7 @@ const MediaGrid = ({ refreshKey }) => {
   const [allMediaLoaded, setAllMediaLoaded] = useState(false);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [currentModalIndex, setCurrentModalIndex] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -115,8 +115,8 @@ const MediaGrid = ({ refreshKey }) => {
     isInitialLoad = false,
     tokenForNextPage = null,
   ) => {
-    if (!isInitialLoad && isLoadingMore) return; // Prevent multiple "load more" requests
-    if (allMediaLoaded && !isInitialLoad) return; // Don't fetch if all loaded
+    if (!isInitialLoad && isLoadingMore) return;
+    if (allMediaLoaded && !isInitialLoad) return;
 
     if (isInitialLoad) {
       setIsLoading(true);
@@ -160,12 +160,9 @@ const MediaGrid = ({ refreshKey }) => {
   };
 
   const handleDeleteMedia = async (fullName) => {
-    // Add a confirmation dialog here
     // if (!window.confirm("Are you sure you want to delete this item?")) return;
-
     try {
       await deleteMediaItemCallable({ fullName });
-      // Remove the item from the local state to update UI immediately
       setMediaItems((prevItems) =>
         prevItems.filter((item) => item.fullName !== fullName),
       );
@@ -176,13 +173,33 @@ const MediaGrid = ({ refreshKey }) => {
   };
 
   const handleMediaClick = (mediaItem) => {
-    setSelectedMedia(mediaItem);
-    setIsModalOpen(true);
+    const index = mediaItems.findIndex(
+      (item) => item.fullName === mediaItem.fullName,
+    );
+    if (index !== -1) {
+      setCurrentModalIndex(index);
+      setIsModalOpen(true);
+    }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedMedia(null);
+    setCurrentModalIndex(null);
+  };
+
+  const handleNextMedia = () => {
+    if (
+      currentModalIndex !== null &&
+      currentModalIndex < mediaItems.length - 1
+    ) {
+      setCurrentModalIndex(currentModalIndex + 1);
+    }
+  };
+
+  const handlePrevMedia = () => {
+    if (currentModalIndex !== null && currentModalIndex > 0) {
+      setCurrentModalIndex(currentModalIndex - 1);
+    }
   };
 
   return (
@@ -211,10 +228,13 @@ const MediaGrid = ({ refreshKey }) => {
         }}
         className="upload-button-spacing"
       />
-      {isModalOpen && selectedMedia && (
+      {isModalOpen && currentModalIndex !== null && mediaItems.length > 0 && (
         <FullScreenMediaModal
-          media={selectedMedia}
+          mediaItems={mediaItems}
+          currentIndex={currentModalIndex}
           onClose={handleCloseModal}
+          onNext={handleNextMedia}
+          onPrev={handlePrevMedia}
           isVideo={isVideo}
         />
       )}

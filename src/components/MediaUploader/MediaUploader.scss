@@ -5,6 +5,11 @@
   margin: 30px auto;
   padding: 20px 15px;
 
+  .back-to-home-btn {
+    display: block;
+    margin: 0 auto 25px auto;
+  }
+
   h1 {
     text-align: center;
     color: v.$font-color;
@@ -35,7 +40,6 @@
 
       .preview-grid {
         display: grid;
-        // Responsive columns: min 100px, max 1fr, auto-fill for as many as fit
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
         gap: 10px;
       }
@@ -78,7 +82,7 @@
           font-size: v.$font-size-xs;
           word-break: break-all;
           text-align: center;
-          height: 2.4em; // Approx 2 lines
+          height: 2.4em;
           line-height: 1.2em;
           overflow: hidden;
           width: 100%;
@@ -99,7 +103,7 @@
           height: 22px;
           cursor: pointer;
           font-size: v.$font-size-s;
-          line-height: 22px; // Vertically center the 'X'
+          line-height: 22px;
           text-align: center;
           font-weight: bold;
           box-shadow: v.$box-shadow-small;
@@ -125,7 +129,7 @@
     max-width: 450px;
     margin: 0 auto 25px auto;
   }
-  & > button {
+  & > button:not(.back-to-home-btn) {
     display: block;
     margin: 10px auto 20px auto;
     min-width: 180px;

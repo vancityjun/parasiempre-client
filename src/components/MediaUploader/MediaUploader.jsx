@@ -44,13 +44,11 @@ const MediaUploader = ({ onUploadSuccess }) => {
     }
     setError(null);
 
-    // Clear the input's value to allow selecting the same file(s) again
     if (event.target) {
       event.target.value = null;
     }
   };
 
-  // Effect for cleaning up preview URLs when the component unmounts or files change
   useEffect(() => {
     return () =>
       filesToUpload.forEach((file) => {
@@ -109,6 +107,11 @@ const MediaUploader = ({ onUploadSuccess }) => {
 
   return (
     <div className="photos-page-container">
+      <Button
+        onClick={() => navigate("/")}
+        className="back-to-home-btn"
+        title="&larr; Back to Gallery"
+      />
       <h1>Share Your Moments</h1>
       <p className="page-description">
         Upload your favorite photos and videos from our time together!
@@ -141,8 +144,7 @@ const MediaUploader = ({ onUploadSuccess }) => {
                       autoPlay
                       muted
                       loop
-                      playsInline // Important for iOS
-                      // controls // Optionally add controls
+                      playsInline
                       alt={`Preview of ${file.name}`}
                     />
                   ) : (

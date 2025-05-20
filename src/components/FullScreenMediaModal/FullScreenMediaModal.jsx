@@ -1,34 +1,65 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./FullScreenMediaModal.scss";
 
-const FullScreenMediaModal = ({ media, onClose, isVideo }) => {
+const FullScreenMediaModal = ({
+  mediaItems,
+  currentIndex,
+  onClose,
+  onNext,
+  onPrev,
+  isVideo,
+}) => {
+  const [touchStartX, setTouchStartX] = useState(0);
+  const contentRef = useRef(null);
+
+  const currentMedia = mediaItems[currentIndex];
+
   useEffect(() => {
-    const handleEsc = (event) => {
+    const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         onClose();
+      } else if (event.key === "ArrowRight") {
+        onNext();
+      } else if (event.key === "ArrowLeft") {
+        onPrev();
       }
     };
-    window.addEventListener("keydown", handleEsc);
+    window.addEventListener("keydown", handleKeyDown);
 
-    // Prevent background scrolling when modal is open
     document.body.style.overflow = "hidden";
 
     return () => {
-      window.removeEventListener("keydown", handleEsc);
-      // Restore background scrolling when modal is closed
+      window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "auto";
     };
-  }, [onClose]);
+  }, [onClose, onNext, onPrev]);
 
-  if (!media) {
+  if (!currentMedia) {
     return null;
   }
 
   const handleOverlayClick = (e) => {
-    // Close modal if click is on the overlay itself, not its children
     if (e.target === e.currentTarget) {
       onClose();
     }
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX === 0) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchEndX - touchStartX;
+    const swipeThreshold = 50;
+
+    if (diffX > swipeThreshold) {
+      onPrev();
+    } else if (diffX < -swipeThreshold) {
+      onNext();
+    }
+    setTouchStartX(0);
   };
 
   return (
@@ -36,20 +67,43 @@ const FullScreenMediaModal = ({ media, onClose, isVideo }) => {
       <button className="close-modal-btn" onClick={onClose} title="Close">
         &times;
       </button>
-      <div className="fullscreen-modal-content">
-        {isVideo(media.name) ? (
+
+      {currentIndex > 0 && (
+        <button className="nav-btn prev-btn" onClick={onPrev} title="Previous">
+          &#10094;
+        </button>
+      )}
+
+      <div
+        className="fullscreen-modal-content"
+        ref={contentRef}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {isVideo(currentMedia.name) ? (
           <video
-            src={media.url}
+            src={currentMedia.url}
             controls
             autoPlay
             playsInline
             loop
-            alt={`Video ${media.name}`}
+            alt={`Video ${currentMedia.name}`}
+            key={currentMedia.url}
           />
         ) : (
-          <img src={media.url} alt={`Photo ${media.name}`} />
+          <img
+            src={currentMedia.url}
+            alt={`Photo ${currentMedia.name}`}
+            key={currentMedia.url}
+          />
         )}
       </div>
+
+      {currentIndex < mediaItems.length - 1 && (
+        <button className="nav-btn next-btn" onClick={onNext} title="Next">
+          &#10095;
+        </button>
+      )}
     </div>
   );
 };

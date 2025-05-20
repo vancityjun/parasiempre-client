@@ -48,10 +48,10 @@
   width: 40px;
   height: 40px;
   font-size: 28px;
-  line-height: 38px; // Adjust for vertical centering of '×'
+  line-height: 38px;
   text-align: center;
   cursor: pointer;
-  z-index: 1001; // Above the content
+  z-index: 1001;
   transition: background-color 0.2s ease;
 
   &:hover {
@@ -65,5 +65,49 @@
     height: 35px;
     font-size: 24px;
     line-height: 33px;
+  }
+}
+
+.nav-btn {
+  all: unset;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1001;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  &.prev-btn {
+    left: 20px;
+  }
+
+  &.next-btn {
+    right: 20px;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  @media (max-width: 600px) {
+    padding: 8px 10px;
+    font-size: 20px;
+    &.prev-btn {
+      left: 10px;
+    }
+    &.next-btn {
+      right: 10px;
+    }
   }
 }
