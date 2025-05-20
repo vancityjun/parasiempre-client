@@ -5,6 +5,7 @@ import "./MediaGrid.scss";
 import Button from "../Button";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../contexts/AuthContext";
+import FullScreenMediaModal from "../FullScreenMediaModal";
 
 const functions = getFunctions(app);
 const listMediaPaginated = httpsCallable(functions, "listMediaPaginated");
@@ -19,8 +20,9 @@ const MediaGridDisplay = ({
   nextPageToken,
   isLoadingMore,
   onLoadMore,
-  currentUser, // Pass currentUser
-  onDelete, // Pass onDelete handler
+  currentUser,
+  onDelete,
+  onMediaClick,
 }) => {
   if (isLoading && mediaItems.length === 0) {
     return <div className="status-message loading">Loading media...</div>;
@@ -36,7 +38,11 @@ const MediaGridDisplay = ({
     <>
       <div className="media-grid">
         {mediaItems.map((item) => (
-          <div key={item.fullName || item.name} className="media-item">
+          <div
+            key={item.fullName || item.name}
+            className="media-item"
+            onClick={() => onMediaClick(item)} // Call onMediaClick
+          >
             {isVideo(item.name) ? (
               <video
                 src={item.url}
@@ -59,7 +65,10 @@ const MediaGridDisplay = ({
             {currentUser && (
               <button
                 className="delete-media-btn"
-                onClick={() => onDelete(item.fullName)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(item.fullName);
+                }}
                 title="Delete Media"
               >
                 &times;
@@ -92,6 +101,8 @@ const MediaGrid = ({ refreshKey }) => {
   const [allMediaLoaded, setAllMediaLoaded] = useState(false);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setMediaItems([]);
@@ -164,6 +175,16 @@ const MediaGrid = ({ refreshKey }) => {
     }
   };
 
+  const handleMediaClick = (mediaItem) => {
+    setSelectedMedia(mediaItem);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedMedia(null);
+  };
+
   return (
     <div className="media-grid-container">
       <h2>Gallery</h2>
@@ -178,6 +199,7 @@ const MediaGrid = ({ refreshKey }) => {
         onLoadMore={() => fetchMediaItems(false, nextPageToken)}
         currentUser={currentUser}
         onDelete={handleDeleteMedia}
+        onMediaClick={handleMediaClick}
       />
       <p className="media-grid-instruction">
         Press and hold an image or video to download.
@@ -189,6 +211,13 @@ const MediaGrid = ({ refreshKey }) => {
         }}
         className="upload-button-spacing"
       />
+      {isModalOpen && selectedMedia && (
+        <FullScreenMediaModal
+          media={selectedMedia}
+          onClose={handleCloseModal}
+          isVideo={isVideo}
+        />
+      )}
     </div>
   );
 };
