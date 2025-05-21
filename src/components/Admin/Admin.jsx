@@ -92,7 +92,7 @@ const Admin = () => {
               <td>
                 <Button
                   title={shownUp ? "Toggle not shown up" : "Toggle shown up"}
-                  onClick={toggleShowUp({ id, shownUp: !shownUp })}
+                  onClick={() => toggleShowUp({ id, shownUp: !shownUp })}
                 />
               </td>
             </tbody>
