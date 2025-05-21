@@ -55,7 +55,7 @@ const Admin = () => {
             guestCount,
             questionnaireAnswers,
             confirmationEmailSent,
-            shownUp = true,
+            shownUp,
           } = guestData;
           return (
             <tbody key={id}>
